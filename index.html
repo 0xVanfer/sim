@@ -50,12 +50,12 @@
                     <tr>
                         <td>liability 1</td>
                         <td>=</td>
-                        <td class="params" id="lia1" contenteditable>1000</td>
+                        <td class="params" id="lia1" contenteditable>1000000</td>
                     </tr>
                     <tr>
                         <td>liability 2</td>
                         <td>=</td>
-                        <td class="params" id="lia2" contenteditable>1000</td>
+                        <td class="params" id="lia2" contenteditable>1000000</td>
                     </tr>
                     <tr>
                         <td>k</td>
@@ -99,6 +99,11 @@
                     <td class="variable" id="rcov"></td>
                 </tr>
                 <tr>
+                    <td>rpp</td>
+                    <td>=</td>
+                    <td class="variable" id="rpp"></td>
+                </tr>
+                <tr>
                     <td>estimate out</td>
                     <td>=</td>
                     <td class="variable" id="estimate-out"></td>
@@ -110,7 +115,17 @@
                 </tr>
             </table>
         </div>
-        <div class="column right"></div>
+        <div class="column right">
+            <div>
+                <div>cov i = asset i / liability i</div>
+                <hr />
+                <div>rop = op 1 / op 2</div>
+                <div>rcov = cov 1 / cov 2</div>
+                <hr />
+                <div>rpp: ratio of pair price</div>
+                <div>rpp = k * rop * rcov**(-1/n)</div>
+            </div>
+        </div>
         <script>
             function CalcRpp() {
                 // Read.
@@ -159,6 +174,7 @@
                 document.getElementById("cov2").innerHTML = cov2.toFixed(3);
                 document.getElementById("rop").innerHTML = rop.toFixed(3);
                 document.getElementById("rcov").innerHTML = rcov.toFixed(3);
+                document.getElementById("rpp").innerHTML = rpp.toFixed(3);
                 document.getElementById("estimate-out").innerHTML = estimate_out.toFixed(3);
                 document.getElementById("price-shift").innerHTML = String((shift * 100).toFixed(3)) + "%";
             }
