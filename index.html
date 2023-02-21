@@ -183,7 +183,7 @@
                 ass2 -= estimate_out;
                 cov1 = ass1 / lia1;
                 cov2 = ass2 / lia2;
-                shift = 1 - (estimate_out * rop) / amount;
+                shift = 1 - estimate_out / rop / amount;
 
                 document.getElementById("cov1").innerHTML = cov1.toFixed(3);
                 document.getElementById("cov2").innerHTML = cov2.toFixed(3);
