@@ -155,10 +155,16 @@
                 <hr />
                 <div>rpp: The token price of the pair. Decide the amount user get and the final price of the pair.</div>
                 <div>-</div>
-                <div>rpp = rop * rcov**(-1/n)</div>
+                <div>rpp = rop * G(rcov, n)</div>
+                <div>G(rcov, n) = (1 / rcov - 1) / n + 1</div>
             </div>
         </div>
         <script>
+            function Grcov(rcov, n) {
+                return (1 / rcov - 1) / n + 1;
+                // return rcov ** (-1 / n);
+            }
+
             function CalcRpp() {
                 // Read.
                 let lia1 = parseFloat(document.getElementById("lia1").textContent);
@@ -184,13 +190,13 @@
 
                 // Calc new cov.
                 let _a = ass1 * ass2 * rcov + amount * ass2 * rcov;
-                let _b = ass1 * ass2 - ass1 * amount * rop * rcov ** (-1 / n);
+                let _b = ass1 * ass2 - ass1 * amount * rop * Grcov(rcov, n);
                 let conv = false;
                 let i;
                 for (i = 0; i < 10000; i++) {
                     let _b_prev = _b;
                     let new_rcov = _a / _b;
-                    _b = ass1 * ass2 - ass1 * amount * rop * new_rcov ** (-1 / n);
+                    _b = ass1 * ass2 - ass1 * amount * rop * Grcov(new_rcov, n);
                     if (Math.abs(_b_prev - _b) < 1e-8) {
                         conv = true;
                         rcov = new_rcov;
@@ -198,7 +204,7 @@
                     }
                 }
 
-                let rpp = rop * rcov ** (-1 / n);
+                let rpp = rop * Grcov(rcov, n);
                 let estimate_out = amount * rpp;
 
                 ass1 += amount;
