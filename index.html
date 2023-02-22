@@ -131,6 +131,11 @@
                     <td>=</td>
                     <td class="variable" id="calc-success"></td>
                 </tr>
+                <tr>
+                    <td>conv times</td>
+                    <td>=</td>
+                    <td class="variable" id="conv-times"></td>
+                </tr>
             </table>
             <br />
             <div>If success is false, the calculation failed(did not converge).</div>
@@ -181,7 +186,8 @@
                 let _a = ass1 * ass2 * rcov + amount * ass2 * rcov;
                 let _b = ass1 * ass2 - ass1 * amount * rop * rcov ** (-1 / n);
                 let conv = false;
-                for (let i = 0; i < 1000000; i++) {
+                let i;
+                for (i = 0; i < 10000; i++) {
                     let _b_prev = _b;
                     let new_rcov = _a / _b;
                     _b = ass1 * ass2 - ass1 * amount * rop * new_rcov ** (-1 / n);
@@ -208,6 +214,7 @@
                 document.getElementById("rpp").innerHTML = rpp.toFixed(decimals);
                 document.getElementById("estimate-out").innerHTML = estimate_out.toFixed(decimals);
                 document.getElementById("calc-success").innerHTML = conv;
+                document.getElementById("conv-times").innerHTML = i;
                 document.getElementById("price-shift").innerHTML = String((shift * 100).toFixed(decimals)) + "%";
             }
             CalcRpp();
