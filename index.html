@@ -70,11 +70,18 @@
                         <td>=</td>
                         <td class="params" id="n" contenteditable>1</td>
                     </tr>
-
                     <tr>
                         <td>swap amount(token 1)</td>
                         <td>=</td>
                         <td class="params" id="amount" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>decimals(of the middle column)</td>
+                        <td>=</td>
+                        <td class="params" id="decimals" contenteditable>3</td>
                     </tr>
                 </table>
             </form>
@@ -158,6 +165,8 @@
 
                 let amount = parseFloat(document.getElementById("amount").textContent);
 
+                let decimals = parseInt(document.getElementById("decimals").textContent);
+
                 // Calc.
                 let cov1 = ass1 / lia1;
                 let cov2 = ass2 / lia2;
@@ -189,14 +198,14 @@
                 cov2 = ass2 / lia2;
                 shift = 1 - estimate_out / rop / amount;
 
-                document.getElementById("cov1").innerHTML = cov1.toFixed(3);
-                document.getElementById("cov2").innerHTML = cov2.toFixed(3);
-                document.getElementById("rop").innerHTML = rop.toFixed(3);
-                document.getElementById("rcov").innerHTML = rcov.toFixed(3);
-                document.getElementById("rpp").innerHTML = rpp.toFixed(3);
-                document.getElementById("estimate-out").innerHTML = estimate_out.toFixed(3);
+                document.getElementById("cov1").innerHTML = cov1.toFixed(decimals);
+                document.getElementById("cov2").innerHTML = cov2.toFixed(decimals);
+                document.getElementById("rop").innerHTML = rop.toFixed(decimals);
+                document.getElementById("rcov").innerHTML = rcov.toFixed(decimals);
+                document.getElementById("rpp").innerHTML = rpp.toFixed(decimals);
+                document.getElementById("estimate-out").innerHTML = estimate_out.toFixed(decimals);
                 document.getElementById("calc-success").innerHTML = conv;
-                document.getElementById("price-shift").innerHTML = String((shift * 100).toFixed(3)) + "%";
+                document.getElementById("price-shift").innerHTML = String((shift * 100).toFixed(decimals)) + "%";
             }
             CalcRpp();
         </script>
