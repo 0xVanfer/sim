@@ -1,0 +1,21 @@
+.header {
+    background-color: darkgoldenrod;
+    text-align: center;
+    padding: 1%;
+    color: beige;
+    font-size: 200%;
+}
+.topnav {
+    overflow: hidden;
+    background-color: #333;
+    font-size: 100%;
+}
+
+.topnav a {
+    float: right;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 1% 1%;
+    text-decoration: none;
+}
