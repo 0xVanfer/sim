@@ -212,18 +212,13 @@
         <div class="column right">
             <div>
                 <div>
-                    <p>Swap "amount" token 1 to token 2.</p>
-                    <p>Will get "estimate out" token 2.</p>
-                    <p>Pair token price rate after swap is "rpp".</p>
+                    <p>Swap 1 swaps "amount 1" token 1 to token 2.</p>
+                    <p>Swap 2 swaps "amount 2" token 1 to token 2.</p>
+                    <p>The second column calculates the result of swaps seperately.</p>
+                    <p>The third column calculates the result of doing these in one swap(amount 1 + amount 2).</p>
+                    <p>User can profit from doing the swaps seperately.</p>
                 </div>
                 <hr />
-                <div>cov i = asset i / liability i</div>
-                <hr />
-                <div>rop = op 1 / op 2</div>
-                <div>rcov = cov 1 / cov 2</div>
-                <hr />
-                <div>rpp: The token price of the pair. Decide the amount user get and the final price of the pair.</div>
-                <div>-</div>
                 <div>rpp = rop * G(rcov, n)</div>
                 <div>G(rcov, n) = (1 / rcov - 1) / n + 1</div>
             </div>
