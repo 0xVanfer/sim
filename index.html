@@ -19,7 +19,7 @@
         </div>
         <!-- Left: params. -->
         <div class="column left">
-            <form action="" oninput="CalcStart()">
+            <form action="" oninput="CalcHome()">
                 <table>
                     <tr>
                         <td>oracle price 1</td>
@@ -49,7 +49,7 @@
                     <tr>
                         <td>swap amount(token 1)</td>
                         <td>=</td>
-                        <td class="params" id="amount1" contenteditable>0</td>
+                        <td class="params" id="amount" contenteditable>0</td>
                     </tr>
                     <tr>
                         <td>-</td>
@@ -101,6 +101,19 @@
                     <td>=</td>
                     <td class="variable" id="price-shift"></td>
                 </tr>
+                <tr>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>converge</td>
+                    <td>=</td>
+                    <td class="variable" id="converge"></td>
+                </tr>
+                <tr>
+                    <td>converge times</td>
+                    <td>=</td>
+                    <td class="variable" id="times"></td>
+                </tr>
             </table>
         </div>
         <div class="column middle2"></div>
@@ -120,11 +133,11 @@
                 <div>rpp: The token price of the pair. Decide the amount user get and the final price of the pair.</div>
                 <div>-</div>
                 <div>rpp = rop * G(rcov, n)</div>
-                <div>G(rcov, n) = (1 / rcov - 1) / n + 1</div>
+                <div>G(rcov, n) = rcov**(-1/n)</div>
             </div>
         </div>
         <script>
-            CalcStart();
+            CalcHome();
         </script>
     </body>
 </html>

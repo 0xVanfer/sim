@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="style/column.css" />
         <link rel="stylesheet" type="text/css" href="style/header.css" />
         <link rel="stylesheet" type="text/css" href="style/param.css" />
+        <script src="./src/calc.js"></script>
         <title>Swap Twice</title>
     </head>
 
@@ -19,7 +20,7 @@
         </div>
         <!-- Left: params. -->
         <div class="column left">
-            <form action="" oninput="CalcRpp();CalcTogether();CalcDiff()">
+            <form action="" oninput="CalcSeperate()">
                 <table>
                     <tr>
                         <td>oracle price 1</td>
@@ -106,6 +107,19 @@
                     <td>=</td>
                     <td class="variable" id="price-shift"></td>
                 </tr>
+                <tr>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>converge</td>
+                    <td>=</td>
+                    <td class="variable" id="converge"></td>
+                </tr>
+                <tr>
+                    <td>converge times</td>
+                    <td>=</td>
+                    <td class="variable" id="times"></td>
+                </tr>
             </table>
             <hr />
             <div>Swap 2</div>
@@ -145,6 +159,19 @@
                     <td>price shift</td>
                     <td>=</td>
                     <td class="variable" id="price-shift_2"></td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>converge</td>
+                    <td>=</td>
+                    <td class="variable" id="converge_2"></td>
+                </tr>
+                <tr>
+                    <td>converge times</td>
+                    <td>=</td>
+                    <td class="variable" id="times_2"></td>
                 </tr>
             </table>
             <hr />
@@ -201,6 +228,19 @@
                     <td>-</td>
                 </tr>
                 <tr>
+                    <td>converge</td>
+                    <td>=</td>
+                    <td class="variable" id="converge_to"></td>
+                </tr>
+                <tr>
+                    <td>converge times</td>
+                    <td>=</td>
+                    <td class="variable" id="times_to"></td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>diff</td>
                     <td>=</td>
                     <td class="variable" id="estimate-out_diff"></td>
@@ -218,143 +258,10 @@
                     <p>The third column calculates the result of doing these in one swap(amount 1 + amount 2).</p>
                     <p>User can profit from doing the swaps seperately.</p>
                 </div>
-                <hr />
-                <div>rpp = rop * G(rcov, n)</div>
-                <div>G(rcov, n) = (1 / rcov - 1) / n + 1</div>
             </div>
         </div>
         <script>
-            function Grcov(rcov, n) {
-                return (1 / rcov - 1) / n + 1;
-            }
-
-            function CalcTogether() {
-                // Read.
-                let lia1 = parseFloat(document.getElementById("lia1").textContent);
-                let lia2 = parseFloat(document.getElementById("lia2").textContent);
-                let ass1 = parseFloat(document.getElementById("lia1").textContent);
-                let ass2 = parseFloat(document.getElementById("lia2").textContent);
-
-                let op1 = parseFloat(document.getElementById("op1").textContent);
-                let op2 = parseFloat(document.getElementById("op2").textContent);
-
-                let n = parseFloat(document.getElementById("n").textContent);
-
-                let amount1 = parseFloat(document.getElementById("amount1").textContent);
-                let amount2 = parseFloat(document.getElementById("amount2").textContent);
-
-                let decimals = parseInt(document.getElementById("decimals").textContent);
-
-                let amount = amount1 + amount2;
-                // Calc.
-                let cov1 = ass1 / lia1;
-                let cov2 = ass2 / lia2;
-
-                let rop = op1 / op2;
-                let rcov = cov1 / cov2;
-
-                let _a = (ass1 + amount) * ass2 * rcov + (amount * ass1 * rop) / n;
-                let _b = ass1 * ass2 - amount * ass1 * rop * (1 - 1 / n);
-                rcov = _a / _b;
-
-                let rpp = rop * Grcov(rcov, n);
-                let estimate_out = amount * rpp;
-
-                ass1 += amount;
-                ass2 -= estimate_out;
-                cov1 = ass1 / lia1;
-                cov2 = ass2 / lia2;
-                let shift = 1 - estimate_out / rop / amount;
-
-                document.getElementById("cov1_to").innerHTML = cov1.toFixed(decimals);
-                document.getElementById("cov2_to").innerHTML = cov2.toFixed(decimals);
-                document.getElementById("rop_to").innerHTML = rop.toFixed(decimals);
-                document.getElementById("rcov_to").innerHTML = rcov.toFixed(decimals);
-                document.getElementById("rpp_to").innerHTML = rpp.toFixed(decimals);
-                document.getElementById("estimate-out_to").innerHTML = estimate_out.toFixed(decimals);
-                document.getElementById("price-shift_to").innerHTML = String((shift * 100).toFixed(decimals)) + "%";
-            }
-
-            function CalcRpp() {
-                // Read.
-                let lia1 = parseFloat(document.getElementById("lia1").textContent);
-                let lia2 = parseFloat(document.getElementById("lia2").textContent);
-                let ass1 = parseFloat(document.getElementById("lia1").textContent);
-                let ass2 = parseFloat(document.getElementById("lia2").textContent);
-
-                let op1 = parseFloat(document.getElementById("op1").textContent);
-                let op2 = parseFloat(document.getElementById("op2").textContent);
-
-                let n = parseFloat(document.getElementById("n").textContent);
-
-                let amount1 = parseFloat(document.getElementById("amount1").textContent);
-                let amount2 = parseFloat(document.getElementById("amount2").textContent);
-
-                let decimals = parseInt(document.getElementById("decimals").textContent);
-
-                // Calc.
-                let cov1 = ass1 / lia1;
-                let cov2 = ass2 / lia2;
-
-                let rop = op1 / op2;
-                let rcov = cov1 / cov2;
-
-                let _a = (ass1 + amount1) * ass2 * rcov + (amount1 * ass1 * rop) / n;
-                let _b = ass1 * ass2 - amount1 * ass1 * rop * (1 - 1 / n);
-                rcov = _a / _b;
-
-                let rpp = rop * Grcov(rcov, n);
-                let estimate_out = amount1 * rpp;
-
-                ass1 += amount1;
-                ass2 -= estimate_out;
-                cov1 = ass1 / lia1;
-                cov2 = ass2 / lia2;
-                let shift = 1 - estimate_out / rop / amount1;
-
-                document.getElementById("cov1").innerHTML = cov1.toFixed(decimals);
-                document.getElementById("cov2").innerHTML = cov2.toFixed(decimals);
-                document.getElementById("rop").innerHTML = rop.toFixed(decimals);
-                document.getElementById("rcov").innerHTML = rcov.toFixed(decimals);
-                document.getElementById("rpp").innerHTML = rpp.toFixed(decimals);
-                document.getElementById("estimate-out").innerHTML = estimate_out.toFixed(decimals);
-                document.getElementById("price-shift").innerHTML = String((shift * 100).toFixed(decimals)) + "%";
-
-                _a = (ass1 + amount2) * ass2 * rcov + (amount2 * ass1 * rop) / n;
-                _b = ass1 * ass2 - amount2 * ass1 * rop * (1 - 1 / n);
-                rcov = _a / _b;
-                rpp = rop * Grcov(rcov, n);
-                let estimate_out_2 = amount2 * rpp;
-                ass1 += amount2;
-                ass2 -= estimate_out_2;
-                cov1 = ass1 / lia1;
-                cov2 = ass2 / lia2;
-                shift = 1 - estimate_out_2 / rop / amount2;
-
-                document.getElementById("cov1_2").innerHTML = cov1.toFixed(decimals);
-                document.getElementById("cov2_2").innerHTML = cov2.toFixed(decimals);
-                document.getElementById("rop_2").innerHTML = rop.toFixed(decimals);
-                document.getElementById("rcov_2").innerHTML = rcov.toFixed(decimals);
-                document.getElementById("rpp_2").innerHTML = rpp.toFixed(decimals);
-                document.getElementById("estimate-out_2").innerHTML = estimate_out_2.toFixed(decimals);
-                document.getElementById("price-shift_2").innerHTML = String((shift * 100).toFixed(decimals)) + "%";
-
-                let out_together = estimate_out_2 + estimate_out;
-                document.getElementById("estimate-out_together").innerHTML = out_together.toFixed(decimals);
-            }
-
-            function CalcDiff() {
-                let sep = parseFloat(document.getElementById("estimate-out_together").textContent);
-                let tog = parseFloat(document.getElementById("estimate-out_to").textContent);
-                let decimals = parseInt(document.getElementById("decimals").textContent);
-
-                let diff = String(((sep / tog - 1) * 100).toFixed(decimals)) + "%";
-                document.getElementById("estimate-out_diff").innerHTML = diff;
-            }
-
-            CalcRpp();
-            CalcTogether();
-            CalcDiff();
+            CalcSeperate();
         </script>
     </body>
 </html>
