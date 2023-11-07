@@ -63,9 +63,21 @@
 
     swap in fee
 
+-   sifr
+    swap in fee result
+
 -   sof
 
     swap out fee
+
+-   sofr
+    swap out fee result
+
+-   sro
+    swap real out
+
+-   spi
+    swap price impact
 
 -   ts
 

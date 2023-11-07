@@ -1,11 +1,3 @@
-
-// How much token-out can be swapped by 1 token-in.
-function Price(rpp, rpp_) {
-    return Math.pow(rpp * rpp_, 1 / 2);
-}
-
-
-
 function ReadElements() {
     let info = new Map();
     let ids = [
@@ -17,6 +9,7 @@ function ReadElements() {
         "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfr0", "pfr1", // fee realted
         "alb0", "alb1", // alr lower bound
         "sa", "aa", "da", // swap, (de)allocate amount
+        "discount", // swap fee discount
     ];
     for (let i = 0; i < ids.length; i++) {
         try {
@@ -107,20 +100,113 @@ function ReadElements() {
 function CalcSwap(info) {
     let swapRes = new Map();
 
+    // amount, token
+    let sa = info.get("sa");
+    let st = info.get("st");
+
     // n, rrs, p
     let n = info.get("n");
-    let rrs = info.get("rrs");
     let p = info.get("p");
+    let m = p+1
 
     // asset, liability, alr
-    let a0 = info.get("a0");
-    let a1 = info.get("a1");
+    let a0 = st == 0 ? info.get("a0") : info.get("a1");
+    let a1 = st == 0 ? info.get("a1") : info.get("a0");
 
-    let l0 = info.get("l0");
-    let l1 = info.get("l1");
+    let l0 = st == 0 ? info.get("l0") : info.get("l1");
+    let l1 = st == 0 ? info.get("l1") : info.get("l0");
 
-    let alr0 = info.get("alr0");
-    let alr1 = info.get("alr1");
+    // oracle price
+    let op0 = st == 0 ? info.get("op0") : info.get("op1");
+    let op1 = st == 0 ? info.get("op1") : info.get("op0");
+
+    // ras
+    let ras0 = st == 0 ? info.get("ras0") : info.get("ras1");
+    let ras1 = st == 0 ? info.get("ras1") : info.get("ras0");
+
+
+    // feeIn, feeOut
+    let sif0 = st == 0 ? info.get("sif0") : info.get("sif1");
+    let sof1 = st == 0 ? info.get("sof1") : info.get("sof0");
+
+    // pa
+    let pa0 = st == 0 ? info.get("pa0") : info.get("pa1");
+
+    // alr lower bound
+    let alb0 = st == 0 ? info.get("pa0") : info.get("alb0");
+
+    // discount
+    let discount = info.get("discount");
+
+    // ========== fee in
+
+    // tx fee
+    let feeIn = sa * sif0 * (1 - discount)
+    let amount = sa - feeIn
+
+    if (a0 + amount > l0 + ras0){
+        feeIn += amount * (a0 + amount - l0) / (a0 + amount) / n
+    }else if (l0 > a0 + ras0 + amount){
+        feeIn += amount * (l0 - a0) / a0 / n
+    }
+
+    let realIn = sa - feeIn
+
+    // ========== swap
+
+    // a = [D*pa/A1/(1+D/A0)+2n]/[n(2n-1)]
+    let a = [realIn * pa0 / a1 / (1 + realIn / a0) + 2 * n] / n / (2 * n - 1)
+    // b = [(D*pa/A1+D/A0)/(1+D/A0)]/[n(2n-1)]
+    let b = (realIn * pa0 / a1 + realIn / a0) / (1 + realIn / a0) / n / (2 * n - 1)
+    let t = (a - Math.sqrt(a * a - 4 * b)) / 2
+    let pav = (1 - t) * pa0
+    let swapGet = realIn * pav
+
+    // ========== fee out
+
+    let feeOut = swapGet * sof1 * (1 - discount)
+    let aout = swapGet - feeOut
+
+    if (a1 + ras1 < l1 + aout){
+        feeOut += aout * (l1 + aout - a1) / l1 / n
+    }else if (a1 > l1 + ras1 + aout){
+        feeOut += aout * (a1 - l1) / l1 / n
+    }
+
+    let estiOut = swapGet - feeOut
+
+    // ========== punish / reward
+
+    let newAlrIn = (a0 + sa) / (l0 + feeIn)
+    let newAlrOut = (a1 - estiOut) / (l1 + feeOut)
+    let newRalr = newAlrIn / newAlrOut
+
+    let reward = 0;
+    let punish = 0;
+
+    if (newRalr > m){
+        // 1-1/(1+ralr/m-m/ralr)
+        punish = [1-1/(1+newRalr/m-m/newRalr)] * estiOut
+        if (punish > estiOut) punish = estiOut;
+    }else if (newRalr < 1 / m){
+        // 1-1/(1+1/m/ralr-m*ralr)
+        reward = [1-1/(1+1/m/newRalr-m*newRalr)] * estiOut
+    }
+
+    let realOut = estiOut - punish + reward
+    // price impact
+    let impact = (realOut * op1) / sa * op0 - 1
+
+    swapRes.set("feeIn", feeIn);
+    swapRes.set("realIn", realIn);
+    swapRes.set("pav", pav);
+    swapRes.set("swapGet", swapGet);
+    swapRes.set("feeOut", feeOut);
+    swapRes.set("estiOut", estiOut);
+    swapRes.set("punish", punish);
+    swapRes.set("reward", reward);
+    swapRes.set("realOut", realOut);
+    swapRes.set("impact", impact);
    
     return swapRes;
 }
@@ -266,6 +352,13 @@ function CalcHome() {
 
     document.getElementById("df").innerHTML = deallocateRes.get("fee").toFixed(decimals);
     document.getElementById("dfr").innerHTML = deallocateRes.get("feerate").toFixed(decimals);
+
+    let swapRes = CalcSwap(info)
+
+    document.getElementById("sifr").innerHTML = swapRes.get("feeIn").toFixed(decimals);
+    document.getElementById("sofr").innerHTML = swapRes.get("feeOut").toFixed(decimals);
+    document.getElementById("sro").innerHTML = swapRes.get("realOut").toFixed(decimals);
+    document.getElementById("spi").innerHTML = swapRes.get("impact").toFixed(decimals);
 
     document.getElementById("test").innerHTML = "ok";
 }
