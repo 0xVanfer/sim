@@ -1,5 +1,8 @@
 function ReadElements() {
     let info = new Map();
+
+    // ====== The normal params read from the ids.
+
     let ids = [
         "decimals",// page decimals
         "n", "rrs", "p",// vtp params
@@ -18,6 +21,10 @@ function ReadElements() {
             continue;
         }
     }
+
+    // ====== The params read from the selections.
+    // The selections: token0 => value = 0; token1 => value = 1.
+
     let selectIDs = [
         "at", "dt", "st"// swap allocate deallocate token
     ]
@@ -124,16 +131,12 @@ function CalcSwap(info) {
     let ras0 = st == 0 ? info.get("ras0") : info.get("ras1");
     let ras1 = st == 0 ? info.get("ras1") : info.get("ras0");
 
-
     // feeIn, feeOut
     let sif0 = st == 0 ? info.get("sif0") : info.get("sif1");
     let sof1 = st == 0 ? info.get("sof1") : info.get("sof0");
 
     // pa
     let pa0 = st == 0 ? info.get("pa0") : info.get("pa1");
-
-    // alr lower bound
-    let alb0 = st == 0 ? info.get("pa0") : info.get("alb0");
 
     // discount
     let discount = info.get("discount");
