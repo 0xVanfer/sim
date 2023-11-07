@@ -1,27 +1,21 @@
 .column {
     float: left;
+    text-align: left;
+
+    font-size: 75%;
+    margin-top: 2%;
 }
 
-.column.left {
-    text-align: left;
-    width: 30%;
-    margin-top: 3%;
+.column.vtp {
+    width: 10%; 
 }
 
-.column.middle1 {
-    text-align: left;
-    width: 25%;
-    margin-top: 3%;
+.column.vtpToken {
+    width: 15%;
 }
 
-.column.middle2 {
-    text-align: left;
-    width: 25%;
-    margin-top: 3%;
+.column.action {
+    width: 15%;
 }
 
-.column.right {
-    text-align: left;
-    width: 20%;
-    margin-top: 3%;
-}
+

@@ -1,272 +1,271 @@
-function Grcov(rcov, n) {
-    return Math.pow(rcov, -1 / n);
-}
 
 // How much token-out can be swapped by 1 token-in.
 function Price(rpp, rpp_) {
-    // return rpp_;
-    // return (3 / 2) * rpp - ((1 / 2) * Math.pow(rpp, 2)) / rpp_;
-    // return Math.pow(rpp, 2 / 3) * Math.pow(rpp_, 1 / 3);
     return Math.pow(rpp * rpp_, 1 / 2);
 }
 
+
+
 function ReadElements() {
-    let params = new Map();
-    let ids = ["lia1", "lia2", "op1", "op2", "n", "amount", "amount1", "amount2", "decimals"];
+    let info = new Map();
+    let ids = [
+        "decimals",// page decimals
+        "n", "rrs", "p",// vtp params
+        "a0", "a1", "aed0", "aed1", // asset, allocated, liability
+        "op0", "op1",// oracle prices
+        "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
+        "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfr0", "pfr1", // fee realted
+        "alb0", "alb1", // alr lower bound
+        "sa", "aa", "da", // swap, (de)allocate amount
+    ];
     for (let i = 0; i < ids.length; i++) {
         try {
-            params.set(ids[i], parseFloat(document.getElementById(ids[i]).textContent));
+            info.set(ids[i], parseFloat(document.getElementById(ids[i]).textContent));
         } catch {
             continue;
         }
     }
-    return params;
-}
-
-function CalcStatus(params) {
-    let data = new Map();
-    // Read.
-    let lia1 = params.get("lia1");
-    let lia2 = params.get("lia2");
-    let ass1 = params.get("lia1");
-    let ass2 = params.get("lia2");
-    let op1 = params.get("op1");
-    let op2 = params.get("op2");
-    let n = params.get("n");
-
-    let cov1 = ass1 / lia1;
-    let cov2 = ass2 / lia2;
-    let rcov = cov1 / cov2;
-    let rop = op1 / op2;
-
-    // Calc.
-    data.set("lia1", lia1);
-    data.set("lia2", lia2);
-    data.set("ass1", ass1);
-    data.set("ass2", ass2);
-    data.set("cov1", cov1);
-    data.set("cov2", cov2);
-    data.set("rop", rop);
-    data.set("rcov", rcov);
-    data.set("n", n);
-    data.set("rpp", rop * Grcov(rcov, n));
-    return data;
-}
-
-function CalcReverseData(data) {
-    let reverseData = new Map();
-
-    let ass1 = data.get("ass2");
-    let ass2 = data.get("ass1");
-    let lia1 = data.get("lia2");
-    let lia2 = data.get("lia1");
-    let rop = 1 / data.get("rop");
-    let rpp = 1 / data.get("rpp");
-    let n = data.get("n");
-
-    let cov1 = ass1 / lia1;
-    let cov2 = ass2 / lia2;
-    let rcov = cov1 / cov2;
-
-    reverseData.set("ass1", ass1);
-    reverseData.set("ass2", ass2);
-    reverseData.set("lia1", lia1);
-    reverseData.set("lia2", lia2);
-    reverseData.set("cov1", cov1);
-    reverseData.set("cov2", cov2);
-    reverseData.set("rcov", rcov);
-    reverseData.set("rop", rop);
-    reverseData.set("n", n);
-    reverseData.set("rpp", rpp);
-    return reverseData;
-}
-
-function CalcSwap(data, amount) {
-    // If Newton's law converges.
-    let converge = false;
-    // The times used for convergence.
-    let times;
-
-    let lia1 = data.get("lia1");
-    let lia2 = data.get("lia2");
-    let ass1 = data.get("ass1");
-    let ass2 = data.get("ass2");
-    let rcov = data.get("rcov");
-    let rop = data.get("rop");
-    let rpp = data.get("rpp");
-    let n = data.get("n");
-
-    // New rpp. Start from rpp.
-    let rpp_ = rpp;
-
-    // Newton's law.
-    for (times = 0; times < 255; times++) {
-        // The start status of new rpp.
-        let rpp_prev = rpp_;
-        let a_ = 1 - (amount * Price(rpp, rpp_)) / ass2;
-        let b_ = 1 + amount / ass1;
-        rpp_ = rpp * Math.pow(a_ / b_, 1 / n);
-        if (Math.abs(rpp_ - rpp_prev) < 1e-10) {
-            converge = true;
-            break;
-        }
-    }
-    if (amount * Price(rpp, rpp_) > ass2) {
-        rpp_ = Math.pow(ass2 / amount, 2) / rpp - 1e-10;
-        if (rpp_ < 0) {
-            rpp_ = 0;
+    let selectIDs = [
+        "at", "dt", "st"// swap allocate deallocate token
+    ]
+    for (let i = 0; i < selectIDs.length; i++) {
+        try {
+            info.set(selectIDs[i], parseFloat(document.getElementById(selectIDs[i]).value));
+        } catch {
+            continue;
         }
     }
 
-    let estimate_out = amount * Price(rpp, rpp_);
+    // n, rrs
+    let n = info.get("n");
+    let rrs = info.get("rrs");
 
-    ass1 += amount;
-    ass2 -= estimate_out;
+    // asset
+    let a0 = info.get("a0");
+    let a1 = info.get("a1");
 
-    cov1 = ass1 / lia1;
-    cov2 = ass2 / lia2;
-    rcov = cov1 / cov2;
-    rpp = rpp_;
-    let shift = 1 - estimate_out / rop / amount;
+    // allocated
+    let aed0 = info.get("aed0");
+    let aed1 = info.get("aed1");
 
-    data.set("ass1", ass1);
-    data.set("ass2", ass2);
-    data.set("cov1", cov1);
-    data.set("cov2", cov2);
-    data.set("rcov", rcov);
-    data.set("rpp", rpp);
-    data.set("n", n);
-    data.set("rop", rop);
-    data.set("estimate-out", estimate_out);
-    data.set("price-shift", shift);
+    // fee collected
+    let fc0 = info.get("fc0");
+    let fc1 = info.get("fc1");
 
-    data.set("converge", converge);
-    data.set("times", times);
-    return data;
+    // liability
+    let l0 = aed0 + fc0;
+    let l1 = aed1 + fc1;
+
+    // asset-liability ratio
+    let alr0 = a0 / l0
+    let alr1 = a1 / l1
+
+    // ralr
+    let ralr0 = alr0 / alr1
+    let ralr1 = alr1 / alr0
+
+    // oracle price
+    let op0 = info.get("op0");
+    let op1 = info.get("op1");
+
+
+    // price oracle
+    let po0 = op0 / op1
+    let po1 = op1 / op0
+
+    // price adjusted
+    let pa0 = po0 * Math.pow(ralr0, -1 / n);
+    let pa1 = 1 / pa0
+
+    // ras
+    // = RRS / (1 / L0 + Pa0 * (1 - RRS / 2n) / L1)
+    let ras0 = rrs / (1 / l0 + pa0 * (1 - rrs / 2 / n) / l1)
+    let ras1 = rrs / (1 / l1 + pa1 * (1 - rrs / 2 / n) / l0)
+
+    info.set("l0", l0);
+    info.set("l1", l1);
+
+    info.set("alr0", alr0);
+    info.set("alr1", alr1);
+
+    info.set("ralr0", ralr0);
+    info.set("ralr1", ralr1);
+
+    info.set("po0", po0);
+    info.set("po1", po1);
+
+    info.set("pa0", pa0);
+    info.set("pa1", pa1);
+
+    info.set("ras0", ras0);
+    info.set("ras1", ras1);
+
+    return info;
+}
+
+
+function CalcSwap(info) {
+    let swapRes = new Map();
+
+    // n, rrs, p
+    let n = info.get("n");
+    let rrs = info.get("rrs");
+    let p = info.get("p");
+
+    // asset, liability, alr
+    let a0 = info.get("a0");
+    let a1 = info.get("a1");
+
+    let l0 = info.get("l0");
+    let l1 = info.get("l1");
+
+    let alr0 = info.get("alr0");
+    let alr1 = info.get("alr1");
+   
+    return swapRes;
+}
+
+function CalcAllocate(info) {
+    let allocateRes = new Map();
+
+    // amount, token
+    let aa = info.get("aa");
+    let at = info.get("at");
+
+    // n, rrs, p
+    let n = info.get("n");
+
+    // asset, liability, alr
+    let a0 = at == 0 ? info.get("a0") : info.get("a1");
+    let a1 = at == 0 ? info.get("a1") : info.get("a0");
+
+    let l0 = at == 0 ? info.get("l0") : info.get("l1");
+    let l1 = at == 0 ? info.get("l1") : info.get("l0");
+
+    // ras
+    let ras0 = at == 0 ? info.get("ras0") : info.get("ras1");
+    let ras1 = at == 0 ? info.get("ras1") : info.get("ras0");
+
+    // pa
+    let pa0 =  at == 0 ? info.get("pa0") : info.get("pa1");
+
+
+    let fee = 0;
+    if (l0 > a0 && a0 + ras0 > l0){
+        // D * 1/n * (RAS0 - (L0 - A0)) * RAS0 / (L0 - RAS0) / (L0 + D)
+        fee = aa / n * (ras0 + a0 - l0) * ras0 / (l0 - ras0) / (l0 + aa)
+    }else if (a0 > l0 && ras1 + a1 > l1){
+        // D * 1/n * (RAS1 - (L1 - A1)) * RAS0 / L0 / (L0 + D + RAS0) / pa0
+        fee = aa / n * (ras1 + a1 - l1) * ras0 / l0 / (l0 + aa + ras0) / pa0
+    }
+
+    allocateRes.set("fee", fee);
+    allocateRes.set("feerate", fee / aa);
+   
+    return allocateRes;
+}
+
+function CalcDeallocate(info) {
+    let deallocateRes = new Map();
+    deallocateRes.set("fee", 0);
+    deallocateRes.set("feerate", 0);
+
+    // amount, token
+    let da = info.get("da");
+    let dt = info.get("dt");
+
+    // n, rrs, p
+    let n = info.get("n");
+
+    // asset, liability, alr
+    let a0 = dt == 0 ? info.get("a0") : info.get("a1");
+    let a1 = dt == 0 ? info.get("a1") : info.get("a0");
+
+    let l0 = dt == 0 ? info.get("l0") : info.get("l1");
+    let l1 = dt == 0 ? info.get("l1") : info.get("l0");
+
+    // ras
+    let ras0 = dt == 0 ? info.get("ras0") : info.get("ras1");
+    let ras1 = dt == 0 ? info.get("ras1") : info.get("ras0");
+
+    // pa
+    let pa0 = dt == 0 ? info.get("pa0") : info.get("pa1");
+
+    // alr lower bound
+    let alb0 = dt == 0 ? info.get("pa0") : info.get("alb0");
+
+    // user info
+    let ua0 = dt == 0 ? info.get("ua0") : info.get("ua1");
+    let us0 = dt == 0 ? info.get("us0") : info.get("us1");
+    let ts0 = dt == 0 ? info.get("ts0") : info.get("ts1");
+
+    // user shares value = share price * user shares
+    let usv0 = l0 / ts0 * us0
+
+    // earnings
+    let earn = usv0 > ua0 ? usv0 - ua0 : 0;
+
+    // The real amount to deallocate.
+    let amount = da + earn;
+
+    if (amount == 0 || a0 == 0 || a1 == 0) return deallocateRes;
+
+    // normal part
+    let np = amount;
+    // pause part
+    let pp = 0;
+
+    let newAlr = (a0 - amount) / (l0 - amount)
+    if (newAlr < alb0){
+        np = (a0 - l0 * alb0) / (1 - alb0)
+        pp = amount - np
+    }
+
+    // pause part fee
+    let ppf = pp * (1 - alb0)
+
+    // normal part fee
+    let npf = 0;
+    if (l0 > a0 && ras1 + a1 > l1){
+        // D * 1/n * (RAS1 + A1 - L1) * (L0 - A0) / L0 / (A0 - D) / pa0
+        npf = np / n * (ras1 + a1 - l1) * (l0 - a0) / l0 / (a0 - np) / pa0
+    }else if (a0 > l0 && a0 < l0 + ras0){
+        // D * 1/n * (RAS0 + A0 - L0) * (A0 - L0) / A0 / (L0 - D)
+        npf = np / n * (ras0 + a0 - l0) * (a0 - l0) / a0 / (l0 - np)
+    }
+    
+    let fee = ppf + npf;
+   
+    deallocateRes.set("fee", fee);
+    deallocateRes.set("feerate", fee / da);
+   
+    return deallocateRes;
 }
 
 function CalcHome() {
-    let params = ReadElements();
-    let amount = params.get("amount");
-    let decimals = params.get("decimals");
-    // Calc.
-    let data = CalcStatus(params);
-    data = CalcSwap(data, amount);
+    document.getElementById("test").innerHTML = "failed";
 
-    document.getElementById("cov1").innerHTML = data.get("cov1").toFixed(decimals);
-    document.getElementById("cov2").innerHTML = data.get("cov2").toFixed(decimals);
-    document.getElementById("rop").innerHTML = data.get("rop").toFixed(decimals);
-    document.getElementById("rcov").innerHTML = data.get("rcov").toFixed(decimals);
-    document.getElementById("rpp").innerHTML = data.get("rpp").toFixed(decimals);
-    document.getElementById("estimate-out").innerHTML = data.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift").innerHTML = String((data.get("price-shift") * 100).toFixed(decimals)) + "%";
+    let info = ReadElements();
+    
+    let decimals = info.get("decimals");
 
-    document.getElementById("converge").innerHTML = data.get("converge");
-    document.getElementById("times").innerHTML = data.get("times");
-}
+    document.getElementById("l0").innerHTML = info.get("l0").toFixed(decimals);
+    document.getElementById("l1").innerHTML = info.get("l1").toFixed(decimals);
+    document.getElementById("alr0").innerHTML = info.get("alr0").toFixed(decimals);
+    document.getElementById("alr1").innerHTML = info.get("alr1").toFixed(decimals);
+    document.getElementById("ralr0").innerHTML = info.get("ralr0").toFixed(decimals);
+    document.getElementById("po0").innerHTML = info.get("po0").toFixed(decimals);
+    document.getElementById("pa0").innerHTML = info.get("pa0").toFixed(decimals);
 
-function CalcSwapAndReverse() {
-    let params = ReadElements();
-    let amount = params.get("amount");
-    let decimals = params.get("decimals");
-    // Calc.
-    let data = CalcStatus(params);
-    data = CalcSwap(data, amount);
+    let allocateRes = CalcAllocate(info)
 
-    document.getElementById("cov1").innerHTML = data.get("cov1").toFixed(decimals);
-    document.getElementById("cov2").innerHTML = data.get("cov2").toFixed(decimals);
-    document.getElementById("rop").innerHTML = data.get("rop").toFixed(decimals);
-    document.getElementById("rcov").innerHTML = data.get("rcov").toFixed(decimals);
-    document.getElementById("rpp").innerHTML = data.get("rpp").toFixed(decimals);
-    document.getElementById("estimate-out").innerHTML = data.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift").innerHTML = String((data.get("price-shift") * 100).toFixed(decimals)) + "%";
+    document.getElementById("af").innerHTML = allocateRes.get("fee").toFixed(decimals);
+    document.getElementById("afr").innerHTML = allocateRes.get("feerate").toFixed(decimals);
 
-    document.getElementById("converge").innerHTML = data.get("converge");
-    document.getElementById("times").innerHTML = data.get("times");
+    let deallocateRes = CalcDeallocate(info)
 
-    let reverseData = new Map([...data.entries()]);
-    reverseData = CalcReverseData(reverseData);
-    reverseData = CalcSwap(reverseData, data.get("estimate-out"));
+    document.getElementById("df").innerHTML = deallocateRes.get("fee").toFixed(decimals);
+    document.getElementById("dfr").innerHTML = deallocateRes.get("feerate").toFixed(decimals);
 
-    document.getElementById("cov1_2").innerHTML = reverseData.get("cov2").toFixed(decimals);
-    document.getElementById("cov2_2").innerHTML = reverseData.get("cov1").toFixed(decimals);
-    document.getElementById("rop_2").innerHTML = (1 / reverseData.get("rop")).toFixed(decimals);
-    document.getElementById("rcov_2").innerHTML = (1 / reverseData.get("rcov")).toFixed(decimals);
-    document.getElementById("rpp_2").innerHTML = (1 / reverseData.get("rpp")).toFixed(decimals);
-    document.getElementById("estimate-out_2").innerHTML = reverseData.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift_2").innerHTML =
-        String((reverseData.get("price-shift") * 100).toFixed(decimals)) + "%";
-
-    document.getElementById("converge_2").innerHTML = data.get("converge");
-    document.getElementById("times_2").innerHTML = data.get("times");
-
-    let profit = reverseData.get("estimate-out") - amount;
-    let is_arbitrage = false;
-    if (profit > 1e-8) {
-        is_arbitrage = true;
-    }
-    document.getElementById("profit").innerHTML = profit.toFixed(decimals);
-    document.getElementById("is_arbitrage").innerHTML = is_arbitrage;
-}
-
-function CalcSeperate() {
-    // Param.
-    let params = ReadElements();
-    let amount1 = params.get("amount1");
-    let amount2 = params.get("amount2");
-    let amount = amount1 + amount2;
-    let decimals = params.get("decimals");
-    let data = CalcStatus(params);
-    let data_ = new Map([...data.entries()]);
-
-    // Calc together.
-    let togetherData = CalcSwap(data_, amount);
-    document.getElementById("cov1_to").innerHTML = togetherData.get("cov1").toFixed(decimals);
-    document.getElementById("cov2_to").innerHTML = togetherData.get("cov2").toFixed(decimals);
-    document.getElementById("rop_to").innerHTML = togetherData.get("rop").toFixed(decimals);
-    document.getElementById("rcov_to").innerHTML = togetherData.get("rcov").toFixed(decimals);
-    document.getElementById("rpp_to").innerHTML = togetherData.get("rpp").toFixed(decimals);
-    document.getElementById("estimate-out_to").innerHTML = togetherData.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift_to").innerHTML =
-        String((togetherData.get("price-shift") * 100).toFixed(decimals)) + "%";
-
-    document.getElementById("converge_to").innerHTML = togetherData.get("converge");
-    document.getElementById("times_to").innerHTML = togetherData.get("times");
-
-    // Calc seperate.
-    data = CalcSwap(data, amount1);
-    let out1 = data.get("estimate-out");
-
-    document.getElementById("cov1").innerHTML = data.get("cov1").toFixed(decimals);
-    document.getElementById("cov2").innerHTML = data.get("cov2").toFixed(decimals);
-    document.getElementById("rop").innerHTML = data.get("rop").toFixed(decimals);
-    document.getElementById("rcov").innerHTML = data.get("rcov").toFixed(decimals);
-    document.getElementById("rpp").innerHTML = data.get("rpp").toFixed(decimals);
-    document.getElementById("estimate-out").innerHTML = data.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift").innerHTML = String((data.get("price-shift") * 100).toFixed(decimals)) + "%";
-
-    document.getElementById("converge").innerHTML = data.get("converge");
-    document.getElementById("times").innerHTML = data.get("times");
-
-    data = CalcSwap(data, amount2);
-    let out2 = data.get("estimate-out");
-
-    document.getElementById("cov1_2").innerHTML = data.get("cov1").toFixed(decimals);
-    document.getElementById("cov2_2").innerHTML = data.get("cov2").toFixed(decimals);
-    document.getElementById("rop_2").innerHTML = data.get("rop").toFixed(decimals);
-    document.getElementById("rcov_2").innerHTML = data.get("rcov").toFixed(decimals);
-    document.getElementById("rpp_2").innerHTML = data.get("rpp").toFixed(decimals);
-    document.getElementById("estimate-out_2").innerHTML = data.get("estimate-out").toFixed(decimals);
-    document.getElementById("price-shift_2").innerHTML =
-        String((data.get("price-shift") * 100).toFixed(decimals)) + "%";
-
-    document.getElementById("converge_2").innerHTML = data.get("converge");
-    document.getElementById("times_2").innerHTML = data.get("times");
-
-    let out_together = out1 + out2;
-    document.getElementById("estimate-out_together").innerHTML = out_together.toFixed(decimals);
-
-    // Calc diff.
-    let diff = String(((out_together / togetherData.get("estimate-out") - 1) * 100).toFixed(decimals)) + "%";
-    document.getElementById("estimate-out_diff").innerHTML = diff;
+    document.getElementById("test").innerHTML = "ok";
 }
