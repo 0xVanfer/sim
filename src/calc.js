@@ -1,5 +1,6 @@
 function ReadElements() {
     let info = new Map();
+    info.set("mapName", "elements");
 
     // ====== The normal params read from the ids.
 
@@ -88,12 +89,15 @@ function ReadElements() {
     info.set("alr0", alr0);
     info.set("alr1", alr1);
 
+    info.set("ralr", ralr0);
     info.set("ralr0", ralr0);
     info.set("ralr1", ralr1);
 
+    info.set("po", po0);
     info.set("po0", po0);
     info.set("po1", po1);
 
+    info.set("pa", pa0);
     info.set("pa0", pa0);
     info.set("pa1", pa1);
 
@@ -103,9 +107,9 @@ function ReadElements() {
     return info;
 }
 
-
 function CalcSwap(info) {
     let swapRes = new Map();
+    swapRes.set("mapName", "swap");
 
     // amount, token
     let sa = info.get("sa");
@@ -200,22 +204,23 @@ function CalcSwap(info) {
     // price impact
     let impact = (realOut * op1) / sa * op0 - 1
 
-    swapRes.set("feeIn", feeIn);
+    swapRes.set("sifr", feeIn);
     swapRes.set("realIn", realIn);
     swapRes.set("pav", pav);
     swapRes.set("swapGet", swapGet);
-    swapRes.set("feeOut", feeOut);
+    swapRes.set("sofr", feeOut);
     swapRes.set("estiOut", estiOut);
     swapRes.set("punish", punish);
     swapRes.set("reward", reward);
-    swapRes.set("realOut", realOut);
-    swapRes.set("impact", impact);
+    swapRes.set("sro", realOut);
+    swapRes.set("spi", impact);
    
     return swapRes;
 }
 
 function CalcAllocate(info) {
     let allocateRes = new Map();
+    allocateRes.set("mapName", "allocate");
 
     // amount, token
     let aa = info.get("aa");
@@ -248,16 +253,18 @@ function CalcAllocate(info) {
         fee = aa / n * (ras1 + a1 - l1) * ras0 / l0 / (l0 + aa + ras0) / pa0
     }
 
-    allocateRes.set("fee", fee);
-    allocateRes.set("feerate", fee / aa);
+    allocateRes.set("af", fee);
+    allocateRes.set("afr", fee / aa);
    
     return allocateRes;
 }
 
 function CalcDeallocate(info) {
     let deallocateRes = new Map();
-    deallocateRes.set("fee", 0);
-    deallocateRes.set("feerate", 0);
+    deallocateRes.set("mapName", "deallocate");
+
+    deallocateRes.set("df", 0);
+    deallocateRes.set("dfr", 0);
 
     // amount, token
     let da = info.get("da");
@@ -325,59 +332,44 @@ function CalcDeallocate(info) {
     
     let fee = ppf + npf;
    
-    deallocateRes.set("fee", fee);
-    deallocateRes.set("feerate", fee / da);
+    deallocateRes.set("df", fee);
+    deallocateRes.set("dfr", fee / da);
    
     return deallocateRes;
 }
 
+function SetElements(info, decimals, numberIDs, percentageIDs){
+    document.getElementById("test").innerHTML = "calc " + info.get("mapName") + " failed";
+
+    // Normal numbers.
+    for (let i = 0; i < numberIDs.length; i++) {
+        let id = numberIDs[i]
+        document.getElementById(id).innerHTML = info.get(id).toFixed(decimals);
+    }
+    // Percentages.
+    for (let j = 0; j < percentageIDs.length; j++) {
+        let id = percentageIDs[j]
+        document.getElementById(id).innerHTML = (info.get(id)*100).toFixed(decimals)+"%";
+    }
+}
+
 function CalcHome() {
-    document.getElementById("test").innerHTML = "read elements failed";
-
+    // Get all the elements.
     let info = ReadElements();
-    
     let decimals = info.get("decimals");
+    SetElements(info, decimals,["l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", "po", "po0", "po1", "pa", "pa0", "pa1"], [])
 
-    document.getElementById("l0").innerHTML = info.get("l0").toFixed(decimals);
-    document.getElementById("l1").innerHTML = info.get("l1").toFixed(decimals);
-
-    document.getElementById("alr0").innerHTML = info.get("alr0").toFixed(decimals);
-    document.getElementById("alr1").innerHTML = info.get("alr1").toFixed(decimals);
-
-    document.getElementById("ralr").innerHTML = info.get("ralr0").toFixed(decimals);
-    document.getElementById("ralr0").innerHTML = info.get("ralr0").toFixed(decimals);
-    document.getElementById("ralr1").innerHTML = info.get("ralr1").toFixed(decimals);
-
-    document.getElementById("po").innerHTML = info.get("po0").toFixed(decimals);
-    document.getElementById("po0").innerHTML = info.get("po0").toFixed(decimals);
-    document.getElementById("po1").innerHTML = info.get("po1").toFixed(decimals);
-
-    document.getElementById("pa").innerHTML = info.get("pa0").toFixed(decimals);
-    document.getElementById("pa0").innerHTML = info.get("pa0").toFixed(decimals);
-    document.getElementById("pa1").innerHTML = info.get("pa1").toFixed(decimals);
-
-    document.getElementById("test").innerHTML = "calc allocate failed";
-
+    // Calc allocate.
     let allocateRes = CalcAllocate(info)
+    SetElements(allocateRes, decimals, ["af"], ["afr"])
 
-    document.getElementById("af").innerHTML = allocateRes.get("fee").toFixed(decimals);
-    document.getElementById("afr").innerHTML = allocateRes.get("feerate").toFixed(decimals);
-
-    document.getElementById("test").innerHTML = "calc deallocate failed";
-
+    // Calc deallocate.
     let deallocateRes = CalcDeallocate(info)
+    SetElements(deallocateRes, decimals, ["df"], ["dfr"])
 
-    document.getElementById("df").innerHTML = deallocateRes.get("fee").toFixed(decimals);
-    document.getElementById("dfr").innerHTML = deallocateRes.get("feerate").toFixed(decimals);
-
-    document.getElementById("test").innerHTML = "calc swap failed";
-
+    // Calc swap.
     let swapRes = CalcSwap(info)
-
-    document.getElementById("sifr").innerHTML = swapRes.get("feeIn").toFixed(decimals);
-    document.getElementById("sofr").innerHTML = swapRes.get("feeOut").toFixed(decimals);
-    document.getElementById("sro").innerHTML = swapRes.get("realOut").toFixed(decimals);
-    document.getElementById("spi").innerHTML = swapRes.get("impact").toFixed(decimals);
+    SetElements(swapRes, decimals, ["sifr", "sofr", "sro"], ["spi"])
 
     document.getElementById("test").innerHTML = "ok";
 }
