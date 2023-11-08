@@ -18,12 +18,32 @@
         </div>
 
         <div class="column incentives">
-            <div class="topic">Vtps</div>
+            <div class="topic">Rage Settings</div>
             <form action="" oninput="CalcIncentives()">
                 <table>
                     <tr>
-                        <td>vtp</td>
-                        <td>|</td>
+                        <td>decimals</td>
+                        <td>=</td>
+                        <td class="params" id="decimals" contenteditable>2</td>
+                    </tr>
+                    <tr>
+                        <td>timestamp now</td>
+                        <td>=</td>
+                        <td class="params" id="timestampnow" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>time now</td>
+                        <td>=</td>
+                        <td id="timenow">2023-11-08 13:49:01</td>
+                    </tr>
+                </table>
+            </form>
+
+            <hr>
+            <div class="topic">Calc Apr (each line is seperate from others)</div>
+            <form action="" oninput="CalcIncentives()">
+                <table>
+                    <tr>
                         <td>emission / sec</td>
                         <td>|</td>
                         <td>start timestamp</td>
@@ -40,16 +60,10 @@
                         <td>|</td>
                         <td>incentives price</td>
                         <td>|</td>
-                        <td>credit</td>
-                        <td>|</td>
-                        <td>maxAllocateRate</td>
-                        <td>|</td>
                         <td>apr</td>
                     </tr>
 
                     <tr>
-                        <td>0</td>
-                        <td>|</td>
                         <td class="params" id="emission0" contenteditable>0</td>
                         <td>|</td>
                         <td class="params" id="startt0" contenteditable>0</td>
@@ -66,16 +80,10 @@
                         <td>|</td>
                         <td class="params" id="inpr0" contenteditable>1</td>
                         <td>|</td>
-                        <td class="params" id="credit0" contenteditable>26</td>
-                        <td>|</td>
-                        <td class="params" id="mar0" contenteditable>0.9</td>
-                        <td>|</td>
                         <td id="apr0">0</td>
                     </tr>
 
                     <tr>
-                        <td>1</td>
-                        <td>|</td>
                         <td class="params" id="emission1" contenteditable>0</td>
                         <td>|</td>
                         <td class="params" id="startt1" contenteditable>0</td>
@@ -92,16 +100,10 @@
                         <td>|</td>
                         <td class="params" id="inpr1" contenteditable>1</td>
                         <td>|</td>
-                        <td class="params" id="credit1" contenteditable>26</td>
-                        <td>|</td>
-                        <td class="params" id="mar1" contenteditable>0.9</td>
-                        <td>|</td>
                         <td id="apr1">0</td>
                     </tr>
 
                     <tr>
-                        <td>2</td>
-                        <td>|</td>
                         <td class="params" id="emission2" contenteditable>0</td>
                         <td>|</td>
                         <td class="params" id="startt2" contenteditable>0</td>
@@ -118,91 +120,87 @@
                         <td>|</td>
                         <td class="params" id="inpr2" contenteditable>1</td>
                         <td>|</td>
-                        <td class="params" id="credit2" contenteditable>26</td>
-                        <td>|</td>
-                        <td class="params" id="mar2" contenteditable>0.9</td>
-                        <td>|</td>
                         <td id="apr2">0</td>
-                    </tr>
-
-                    <tr>
-                        <td>3</td>
-                        <td>|</td>
-                        <td class="params" id="emission3" contenteditable>0</td>
-                        <td>|</td>
-                        <td class="params" id="startt3" contenteditable>0</td>
-                        <td>|</td>
-                        <td id="start3">2023-11-08 13:49:01</td>
-                        <td>|</td>
-                        <td class="params" id="endt3" contenteditable>0</td>
-                        <td>|</td>
-                        <td id="end3">2023-11-08 13:49:01</td>
-                        <td>|</td>
-                        <td class="params" id="lia3" contenteditable>0</td>
-                        <td>|</td>
-                        <td class="params" id="unpr3" contenteditable>1</td>
-                        <td>|</td>
-                        <td class="params" id="inpr3" contenteditable>1</td>
-                        <td>|</td>
-                        <td class="params" id="credit3" contenteditable>26</td>
-                        <td>|</td>
-                        <td class="params" id="mar3" contenteditable>0.9</td>
-                        <td>|</td>
-                        <td id="apr3">0</td>
-                    </tr>
-
-                    <tr>
-                        <td>4</td>
-                        <td>|</td>
-                        <td class="params" id="emission4" contenteditable>0</td>
-                        <td>|</td>
-                        <td class="params" id="startt4" contenteditable>0</td>
-                        <td>|</td>
-                        <td id="start4">2023-11-08 13:49:01</td>
-                        <td>|</td>
-                        <td class="params" id="endt4" contenteditable>0</td>
-                        <td>|</td>
-                        <td id="end4">2023-11-08 13:49:01</td>
-                        <td>|</td>
-                        <td class="params" id="lia4" contenteditable>0</td>
-                        <td>|</td>
-                        <td class="params" id="unpr4" contenteditable>1</td>
-                        <td>|</td>
-                        <td class="params" id="inpr4" contenteditable>1</td>
-                        <td>|</td>
-                        <td class="params" id="credit4" contenteditable>26</td>
-                        <td>|</td>
-                        <td class="params" id="mar4" contenteditable>0.9</td>
-                        <td>|</td>
-                        <td id="apr4">0</td>
                     </tr>
                 </table>
             </form>
 
             <hr>
 
-            <div class="topic">Results</div>
+            <div class="topic">Calc Best Apr</div>
             <form action="" oninput="CalcIncentives()">
                 <table>
                     <tr>
-                        <td>decimals</td>
-                        <td>=</td>
-                        <td class="params" id="decimals" contenteditable>6</td>
+                        <td>vtp</td>
+                        <td>|</td>
+                        <td>maxAllocateRate</td>
+                        <td>|</td>
+                        <td>credit</td>
+                        <td>|</td>
+                        <td>apr (in percentage)</td>
                     </tr>
+
+                    <tr>
+                        <td>0</td>
+                        <td>|</td>
+                        <td class="params" id="mar0" contenteditable>0.9</td>
+                        <td>|</td>
+                        <td class="params" id="credit0" contenteditable>26</td>
+                        <td>|</td>
+                        <td class="params" id="aprmax0" contenteditable>0</td>
+                    </tr>
+
+                    <tr>
+                        <td>1</td>
+                        <td>|</td>
+                        <td class="params" id="mar1" contenteditable>0.9</td>
+                        <td>|</td>
+                        <td class="params" id="credit1" contenteditable>26</td>
+                        <td>|</td>
+                        <td class="params" id="aprmax1" contenteditable>0</td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>|</td>
+                        <td class="params" id="mar2" contenteditable>0.9</td>
+                        <td>|</td>
+                        <td class="params" id="credit2" contenteditable>26</td>
+                        <td>|</td>
+                        <td class="params" id="aprmax2" contenteditable>0</td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>|</td>
+                        <td class="params" id="mar3" contenteditable>0.9</td>
+                        <td>|</td>
+                        <td class="params" id="credit3" contenteditable>26</td>
+                        <td>|</td>
+                        <td class="params" id="aprmax3" contenteditable>0</td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td>|</td>
+                        <td class="params" id="mar4" contenteditable>0.9</td>
+                        <td>|</td>
+                        <td class="params" id="credit4" contenteditable>26</td>
+                        <td>|</td>
+                        <td class="params" id="aprmax4" contenteditable>0</td>
+                    </tr>
+
+                </table>
+            </form>
+
+            <br>
+
+            <form action="" oninput="CalcIncentives()">
+                <table>
                     <tr>
                         <td>total credits</td>
                         <td>=</td>
                         <td class="params" id="totalcredits" contenteditable>100</td>
-                    </tr>
-                    <tr>
-                        <td>timestamp now</td>
-                        <td>=</td>
-                        <td class="params" id="timestampnow" contenteditable>0</td>
-                    </tr>
-                    <tr>
-                        <td>time now</td>
-                        <td>=</td>
-                        <td id="timenow">2023-11-08 13:49:01</td>
                     </tr>
                     <tr>
                         <td>best apr</td>
