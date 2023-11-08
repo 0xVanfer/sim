@@ -39,7 +39,7 @@ function ReadElements() {
     }
 
     if (info.get("discount") > 1) {
-        document.getElementById("error").innerHTML = "swap discount should be within 0 ~ 1. use 0.1 for 10%";
+        SetError("swap discount should be within 0 ~ 1. use 0.1 for 10%");
         return
     }
 
@@ -380,8 +380,12 @@ function CalcDeallocate(info) {
     return deallocateRes;
 }
 
+function SetError(errorStr){
+    document.getElementById("error").innerHTML = errorStr;
+}
+
 function SetElements(info, decimals, numberIDs, percentageIDs){
-    document.getElementById("error").innerHTML = "calc " + info.get("mapName") + " failed";
+    SetError("calc " + info.get("mapName") + " failed")
 
     // Normal numbers.
     for (let i = 0; i < numberIDs.length; i++) {
@@ -414,5 +418,5 @@ function CalcHome() {
     // SetElements(swapRes, decimals, ["sro"], ["spi", "srode"])
     SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1"], ["spi", "srode"])
 
-    document.getElementById("error").innerHTML = "ok";
+    SetError("success")
 }
