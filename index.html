@@ -294,7 +294,7 @@
                 <div class="topic">Result</div>
                 <form action="" oninput="CalcHome()">
                     <table>
-                        <tr>
+                        <!-- <tr>
                             <td>feeIn</td>
                             <td>=</td>
                             <td id="sifr">-</td>
@@ -303,7 +303,7 @@
                             <td>feeOut</td>
                             <td>=</td>
                             <td id="sofr">-</td>
-                        </tr>
+                        </tr> -->
                         <tr>
                             <td>realOut</td>
                             <td>=</td>
@@ -313,6 +313,26 @@
                             <td>impact</td>
                             <td>=</td>
                             <td id="spi">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="srofr" contenteditable>0</td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="srode">-</td>
                         </tr>
                     </table>
                 </form>
@@ -368,6 +388,26 @@
                     </table>
                 </form>
             </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="affr" contenteditable>0</td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="afde">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
         </div>
 
         <!-- Deallocate -->
@@ -415,6 +455,26 @@
                             <td>fee rate</td>
                             <td>=</td>
                             <td id="dfr">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="dffr" contenteditable>0</td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="dfde">-</td>
                         </tr>
                     </table>
                 </form>

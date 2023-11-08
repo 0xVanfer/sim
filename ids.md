@@ -25,11 +25,28 @@
 -   afr
     allocation fee rate
 
+-   affr
+    allocation fee frontend result
+
+-   afde
+    allocation fee deviation
+
 -   da
     deallocate amount
 
 -   dt
     deallocate token
+
+-   df
+    deallocation fee
+-   dfr
+    deallocation fee rate
+
+-   dffr
+    deallocation fee frontend result
+
+-   dfde
+    deallocation fee deviation
 
 -   fc
 
@@ -75,6 +92,12 @@
 
 -   sro
     swap real out
+
+-   srofr
+    swap real out frontend result
+
+-   srode
+    swap real out deviation
 
 -   spi
     swap price impact

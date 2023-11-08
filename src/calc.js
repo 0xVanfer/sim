@@ -14,6 +14,7 @@ function ReadElements() {
         "alb0", "alb1", // alr lower bound
         "sa", "aa", "da", // swap, (de)allocate amount
         "discount", // swap fee discount
+        "srofr", "affr", "dffr", // frontend results
     ];
     for (let i = 0; i < ids.length; i++) {
         try {
@@ -214,7 +215,11 @@ function CalcSwap(info) {
     swapRes.set("reward", reward);
     swapRes.set("sro", realOut);
     swapRes.set("spi", impact);
-   
+
+    let front = info.get("srofr");
+    let deviation = realOut == 0 ? 0 : front / realOut - 1
+    swapRes.set("srode", deviation);
+
     return swapRes;
 }
 
@@ -255,6 +260,10 @@ function CalcAllocate(info) {
 
     allocateRes.set("af", fee);
     allocateRes.set("afr", fee / aa);
+
+    let front = info.get("affr");
+    let deviation = fee == 0 ? 0 : front / fee - 1
+    allocateRes.set("afde", deviation);
    
     return allocateRes;
 }
@@ -262,9 +271,6 @@ function CalcAllocate(info) {
 function CalcDeallocate(info) {
     let deallocateRes = new Map();
     deallocateRes.set("mapName", "deallocate");
-
-    deallocateRes.set("df", 0);
-    deallocateRes.set("dfr", 0);
 
     // amount, token
     let da = info.get("da");
@@ -304,7 +310,12 @@ function CalcDeallocate(info) {
     // The real amount to deallocate.
     let amount = da + earn;
 
-    if (amount == 0 || a0 == 0 || a1 == 0) return deallocateRes;
+    if (amount == 0 || a0 == 0 || a1 == 0) {
+        deallocateRes.set("df", 0);
+        deallocateRes.set("dfr", 0);
+        deallocateRes.set("dfde", 0);
+        return deallocateRes;
+    }
 
     // normal part
     let np = amount;
@@ -334,6 +345,10 @@ function CalcDeallocate(info) {
    
     deallocateRes.set("df", fee);
     deallocateRes.set("dfr", fee / da);
+
+    let front = info.get("dffr");
+    let deviation = fee == 0 ? 0 : front / fee - 1
+    deallocateRes.set("dfde", deviation);
    
     return deallocateRes;
 }
@@ -361,15 +376,16 @@ function CalcHome() {
 
     // Calc allocate.
     let allocateRes = CalcAllocate(info)
-    SetElements(allocateRes, decimals, ["af"], ["afr"])
+    SetElements(allocateRes, decimals, ["af"], ["afr", "afde"])
 
     // Calc deallocate.
     let deallocateRes = CalcDeallocate(info)
-    SetElements(deallocateRes, decimals, ["df"], ["dfr"])
+    SetElements(deallocateRes, decimals, ["df"], ["dfr", "dfde"])
 
     // Calc swap.
     let swapRes = CalcSwap(info)
-    SetElements(swapRes, decimals, ["sifr", "sofr", "sro"], ["spi"])
+    SetElements(swapRes, decimals, ["sro"], ["spi", "srode"])
+    // SetElements(swapRes, decimals, ["sifr", "sofr", "sro"], ["spi", "srode"])
 
     document.getElementById("test").innerHTML = "ok";
 }
