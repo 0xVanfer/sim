@@ -332,7 +332,7 @@ function CalcDeallocate(info) {
 }
 
 function CalcHome() {
-    document.getElementById("test").innerHTML = "failed";
+    document.getElementById("test").innerHTML = "read elements failed";
 
     let info = ReadElements();
     
@@ -340,21 +340,37 @@ function CalcHome() {
 
     document.getElementById("l0").innerHTML = info.get("l0").toFixed(decimals);
     document.getElementById("l1").innerHTML = info.get("l1").toFixed(decimals);
+
     document.getElementById("alr0").innerHTML = info.get("alr0").toFixed(decimals);
     document.getElementById("alr1").innerHTML = info.get("alr1").toFixed(decimals);
+
+    document.getElementById("ralr").innerHTML = info.get("ralr0").toFixed(decimals);
     document.getElementById("ralr0").innerHTML = info.get("ralr0").toFixed(decimals);
+    document.getElementById("ralr1").innerHTML = info.get("ralr1").toFixed(decimals);
+
+    document.getElementById("po").innerHTML = info.get("po0").toFixed(decimals);
     document.getElementById("po0").innerHTML = info.get("po0").toFixed(decimals);
+    document.getElementById("po1").innerHTML = info.get("po1").toFixed(decimals);
+
+    document.getElementById("pa").innerHTML = info.get("pa0").toFixed(decimals);
     document.getElementById("pa0").innerHTML = info.get("pa0").toFixed(decimals);
+    document.getElementById("pa1").innerHTML = info.get("pa1").toFixed(decimals);
+
+    document.getElementById("test").innerHTML = "calc allocate failed";
 
     let allocateRes = CalcAllocate(info)
 
     document.getElementById("af").innerHTML = allocateRes.get("fee").toFixed(decimals);
     document.getElementById("afr").innerHTML = allocateRes.get("feerate").toFixed(decimals);
 
+    document.getElementById("test").innerHTML = "calc deallocate failed";
+
     let deallocateRes = CalcDeallocate(info)
 
     document.getElementById("df").innerHTML = deallocateRes.get("fee").toFixed(decimals);
     document.getElementById("dfr").innerHTML = deallocateRes.get("feerate").toFixed(decimals);
+
+    document.getElementById("test").innerHTML = "calc swap failed";
 
     let swapRes = CalcSwap(info)
 
