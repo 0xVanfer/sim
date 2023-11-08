@@ -220,6 +220,16 @@ function CalcSwap(info) {
     let deviation = realOut == 0 ? 0 : front / realOut - 1
     swapRes.set("srode", deviation);
 
+    // alr after swap
+    let alrasIn = (a0 + sa) / (l0 + feeIn)
+    let alrasOut = (a1 - realOut) / (l1 + feeOut + punish)
+
+    let alras0 = st == 0 ? alrasIn : alrasOut;
+    let alras1 = st == 0 ? alrasOut : alrasIn;
+
+    swapRes.set("alras0", alras0);
+    swapRes.set("alras1", alras1);
+
     return swapRes;
 }
 
@@ -258,12 +268,19 @@ function CalcAllocate(info) {
         fee = aa / n * (ras1 + a1 - l1) * ras0 / l0 / (l0 + aa + ras0) / pa0
     }
 
+    if (fee > aa) fee = aa;
+
     allocateRes.set("af", fee);
     allocateRes.set("afr", fee / aa);
 
     let front = info.get("affr");
     let deviation = fee == 0 ? 0 : front / fee - 1
     allocateRes.set("afde", deviation);
+
+    // alr after allocation
+    let alraa = (a0 + aa) / (l0 + aa)
+    allocateRes.set("alraa", alraa);
+
    
     return allocateRes;
 }
@@ -342,6 +359,7 @@ function CalcDeallocate(info) {
     }
     
     let fee = ppf + npf;
+    if (fee > amount) fee = amount;
    
     deallocateRes.set("df", fee);
     deallocateRes.set("dfr", fee / da);
@@ -349,6 +367,10 @@ function CalcDeallocate(info) {
     let front = info.get("dffr");
     let deviation = fee == 0 ? 0 : front / fee - 1
     deallocateRes.set("dfde", deviation);
+
+    // alr after deallocation
+    let alrad = (a0 - amount + fee) / (l0 - amount)
+    deallocateRes.set("alrad", alrad);
    
     return deallocateRes;
 }
@@ -376,16 +398,16 @@ function CalcHome() {
 
     // Calc allocate.
     let allocateRes = CalcAllocate(info)
-    SetElements(allocateRes, decimals, ["af"], ["afr", "afde"])
+    SetElements(allocateRes, decimals, ["af", "alraa"], ["afr", "afde"])
 
     // Calc deallocate.
     let deallocateRes = CalcDeallocate(info)
-    SetElements(deallocateRes, decimals, ["df"], ["dfr", "dfde"])
+    SetElements(deallocateRes, decimals, ["df", "alrad"], ["dfr", "dfde"])
 
     // Calc swap.
     let swapRes = CalcSwap(info)
-    SetElements(swapRes, decimals, ["sro"], ["spi", "srode"])
-    // SetElements(swapRes, decimals, ["sifr", "sofr", "sro"], ["spi", "srode"])
+    // SetElements(swapRes, decimals, ["sro"], ["spi", "srode"])
+    SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1"], ["spi", "srode"])
 
     document.getElementById("test").innerHTML = "ok";
 }

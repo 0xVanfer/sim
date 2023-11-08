@@ -20,6 +20,15 @@
 -   alr
     asset-liability ratio
 
+-   alras
+    alr after swap
+
+-   alraa
+    alr after allocate
+
+-   alraa
+    alr after deallocate
+
 -   af
     allocation fee
 -   afr
