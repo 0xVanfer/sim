@@ -21,4 +21,15 @@
     margin-top: 2%;
 }
 
+.column.error {
+    width: 10%;
+    font-size: 75%;
+    margin-top: 2%;
+}
+
+.column.incentives {
+    width: 80%;
+    font-size: 75%;
+    margin-top: 2%;
+}
 
