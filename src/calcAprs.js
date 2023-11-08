@@ -89,8 +89,6 @@ function CalcBestApr(){
     return
 }
 
-
-
 // Get combs of all vtps.
 function GetAllCombinations(arr){
     SetError("get combinations error")
@@ -156,8 +154,7 @@ function SetError(errorStr){
     document.getElementById("error").innerHTML = errorStr;
 }
 
-
-function CalcIncentives(){
+function CalcAprsInfo(){
     CalcApr()
     CalcBestApr()
     SetError("success")

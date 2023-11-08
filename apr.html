@@ -7,19 +7,19 @@
         <link rel="stylesheet" type="text/css" href="style/column.css" />
         <link rel="stylesheet" type="text/css" href="style/header.css" />
         <link rel="stylesheet" type="text/css" href="style/param.css" />
-        <script src="./src/calcIncentives.js"></script>
+        <script src="./src/calcAprs.js"></script>
         <title>Calc</title>
     </head>
     <body>
         <div class="header">Staple Simulation</div>
         <div class="topnav">
             <a href="./index.html" target="_self">Home</a>
-            <a href="./incentives.html" target="_self">Incentives Apr</a>
+            <a href="./apr.html" target="_self">Apr</a>
         </div>
 
         <div class="column incentives">
             <div class="topic">Page Settings</div>
-            <form action="" oninput="CalcIncentives()">
+            <form action="" oninput="CalcAprsInfo()">
                 <table>
                     <tr>
                         <td>decimals</td>
@@ -40,8 +40,8 @@
             </form>
 
             <hr>
-            <div class="topic">Calc Apr (each line is seperate from others)</div>
-            <form action="" oninput="CalcIncentives()">
+            <div class="topic">Calc Incentives Apr (each line is seperate from others)</div>
+            <form action="" oninput="CalcAprsInfo()">
                 <table>
                     <tr>
                         <td>emission / sec</td>
@@ -127,8 +127,8 @@
 
             <hr>
 
-            <div class="topic">Calc Best Apr</div>
-            <form action="" oninput="CalcIncentives()">
+            <div class="topic">Calc Best Pool Apr</div>
+            <form action="" oninput="CalcAprsInfo()">
                 <table>
                     <tr>
                         <td>vtp</td>
@@ -195,7 +195,7 @@
 
             <br>
 
-            <form action="" oninput="CalcIncentives()">
+            <form action="" oninput="CalcAprsInfo()">
                 <table>
                     <tr>
                         <td>total credits</td>
@@ -226,7 +226,7 @@
         </div>
 
         <script>
-            CalcIncentives();
+            CalcAprsInfo();
         </script>
     </body>
 
