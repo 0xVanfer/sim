@@ -536,6 +536,7 @@ function ExportData(){
     let obj= Object.create(null);
     for (let[k,v] of info) {
         obj[k] = v;
+        if (obj[k] == null) obj[k] = 0;
     }
 
     SetString("exportedData", JSON.stringify(obj))

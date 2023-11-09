@@ -89,9 +89,16 @@
             <br>
             <div>
                 <button class="data-button" onclick="ImportData()">Import Data</button>
+            </div>
+            <br>
+            <div>
                 <div>
-                    Data: <div class="params" id="data2import" contenteditable></div>
-                </div>  
+                    Data to Import: <div class="params" id="data2import" contenteditable></div>
+                </div>
+                <br>  
+                <div>
+                    Exported Data: <div id="exportedData"></div>
+                </div>
             </div>
         </div>
 
@@ -556,8 +563,6 @@
                     </table>
                 </form>
             </div>
-            <br>
-            <div id="exportedData"></div>
         </div>
 
         <script>
