@@ -1,0 +1,12 @@
+.execute-button {
+    background-color: #3498db; 
+    color: #fff; 
+    border: none; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+.execute-button:hover {
+    background-color: #2980b9; 
+}

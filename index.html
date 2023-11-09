@@ -7,7 +7,9 @@
         <link rel="stylesheet" type="text/css" href="style/column.css" />
         <link rel="stylesheet" type="text/css" href="style/header.css" />
         <link rel="stylesheet" type="text/css" href="style/param.css" />
-        <script src="./src/calc.js"></script>
+        <link rel="stylesheet" type="text/css" href="style/button.css" />
+        <script src="./src/common.js"></script>
+        <script src="./src/calcHome.js"></script>
         <title>Calc</title>
     </head>
     <body>
@@ -68,6 +70,12 @@
                     </tr>
                 </table>
             </form>
+
+            <hr></hr>
+
+            <div>
+                Double-click the 'execute' buttons to execute the actions.
+            </div>
 
         </div>
 
@@ -347,6 +355,12 @@
                     </table>
                 </form>
             </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeSwap" ondblclick="ExecuteSwap()">Execute This Swap</button>
+            </div>
         </div>
 
         <!-- Allocate -->
@@ -424,6 +438,12 @@
                     </table>
                 </form>
             </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeAllocate" ondblclick="ExecuteAllocation()">Execute This Allocation</button>
+            </div>
         </div>
 
         <!-- Deallocate -->
@@ -500,6 +520,12 @@
                         </tr>
                     </table>
                 </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeDeallocate" ondblclick="ExecuteDeallocation()">Execute This Deallocation</button>
             </div>
         </div>
 

@@ -294,6 +294,10 @@ function CalcDeallocate(info) {
     let deallocateRes = new Map();
     deallocateRes.set("mapName", "deallocate");
 
+    deallocateRes.set("df", 0);
+    deallocateRes.set("dfr", 0);
+    deallocateRes.set("dfde", 0);
+
     // amount, token
     let da = info.get("da");
     let dt = info.get("dt");
@@ -324,7 +328,11 @@ function CalcDeallocate(info) {
     let ts0 = dt == 0 ? info.get("ts0") : info.get("ts1");
 
     // user shares value = share price * user shares
-    let usv0 = l0 / ts0 * us0
+    let sharePrice = l0 / ts0
+    let usv0 = sharePrice * us0
+
+    // shares to burn
+    let s2b = us0 - (ua0 - da) / sharePrice
 
     // earnings
     let earn = usv0 > ua0 ? usv0 - ua0 : 0;
@@ -332,10 +340,11 @@ function CalcDeallocate(info) {
     // The real amount to deallocate.
     let amount = da + earn;
 
+    deallocateRes.set("s2b", s2b);
+    deallocateRes.set("amount", amount);
+
     if (amount == 0 || a0 == 0 || a1 == 0) {
-        deallocateRes.set("df", 0);
-        deallocateRes.set("dfr", 0);
-        deallocateRes.set("dfde", 0);
+        // fee = 0
         return deallocateRes;
     }
 
@@ -380,8 +389,110 @@ function CalcDeallocate(info) {
     return deallocateRes;
 }
 
-function SetError(errorStr){
-    document.getElementById("error").innerHTML = errorStr;
+function ExecuteSwap(){
+    let info = ReadElements();
+    let decimals = info.get("decimals");
+    SetError("execute swap failed")
+
+    let swapRes = CalcSwap(info)
+    // swap amount
+    let sa = info.get("sa");
+    // swap token
+    let st = info.get("st");
+
+    let assetInID = st == 0 ? "a0" : "a1"
+    let assetOutID = st == 0 ? "a1" : "a0"
+
+    let feeCollectedInID = st == 0 ? "fc0" : "fc1"
+    let feeCollectedOutID = st == 0 ? "fc1" : "fc0"
+
+    let feeIn = swapRes.get("sifr")
+    let feeOut = swapRes.get("sofr")
+    let punish = swapRes.get("punish")
+    let realOut = swapRes.get("sro")
+
+    SetNumber(assetInID, info.get(assetInID) + sa, decimals)
+    SetNumber(assetOutID, info.get(assetOutID) - realOut, decimals)
+    SetNumber(feeCollectedInID, info.get(feeCollectedInID) + feeIn, decimals)
+    SetNumber(feeCollectedOutID, info.get(feeCollectedOutID) + feeOut + punish, decimals)
+
+    CalcHome()
+
+    SetError("execute swap success")
+}
+
+function ExecuteAllocation(){
+    let info = ReadElements();
+    let decimals = info.get("decimals");
+    SetError("execute allocation failed")
+
+    let allocateRes = CalcAllocate(info)
+    // allocate amount
+    let aa = info.get("aa");
+    // allocate token
+    let at = info.get("at");
+    // allocate fee
+    let af = allocateRes.get("af");
+    // real allocate
+    let realAllo = aa - af
+
+    let assetID = at == 0 ? "a0" : "a1"
+    let allocatedID = at == 0 ? "aed0" : "aed1"
+    let liabilityID = at == 0 ? "l0" : "l1"
+    let userAllocationID = at == 0 ? "ua0" : "ua1"
+    let userShareID = at == 0 ? "us0" : "us1"
+    let totalShareID = at == 0 ? "ts0" : "ts1"
+    let feeCollectedID = at == 0 ? "fc0" : "fc1"
+
+    let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID) + af)
+
+    SetNumber(assetID, info.get(assetID) + aa, decimals)
+    SetNumber(allocatedID, info.get(allocatedID) + realAllo, decimals)
+    SetNumber(feeCollectedID, info.get(feeCollectedID) + af, decimals)
+
+    SetNumber(userAllocationID, info.get(userAllocationID) + realAllo, decimals)
+    SetNumber(userShareID, info.get(userShareID) + userSharesAdd, decimals)
+    SetNumber(totalShareID, info.get(totalShareID) + userSharesAdd, decimals)
+
+    CalcHome()
+
+    SetError("execute allocation success")
+}
+
+function ExecuteDeallocation(){
+    let info = ReadElements();
+    let decimals = info.get("decimals");
+    SetError("execute deallocation failed")
+
+    let deallocateRes = CalcDeallocate(info)
+    // deallocate amount
+    let da = info.get("da");
+    // deallocate token
+    let dt = info.get("dt");
+    // amount to leave
+    let amount = deallocateRes.get("amount")
+    // deallocate fee
+    let df = deallocateRes.get("df");
+
+    let assetID = dt == 0 ? "a0" : "a1"
+    let allocatedID = dt == 0 ? "aed0" : "aed1"
+    let liabilityID = dt == 0 ? "l0" : "l1"
+    let userAllocationID = dt == 0 ? "ua0" : "ua1"
+    let userShareID = dt == 0 ? "us0" : "us1"
+    let totalShareID = dt == 0 ? "ts0" : "ts1"
+    let feeCollectedID = dt == 0 ? "fc0" : "fc1"
+
+    SetNumber(assetID, info.get(assetID) - amount + df, decimals)
+    SetNumber(allocatedID, info.get(allocatedID) - da, decimals)
+    SetNumber(feeCollectedID, info.get(feeCollectedID) + df, decimals)
+
+    SetNumber(userAllocationID, info.get(userAllocationID) - da, decimals)
+    SetNumber(userShareID, info.get(userShareID) - deallocateRes.get("s2b"), decimals)
+    SetNumber(totalShareID, info.get(totalShareID) - deallocateRes.get("s2b"), decimals)
+
+    CalcHome()
+
+    SetError("execute deallocation success")
 }
 
 function SetElements(info, decimals, numberIDs, percentageIDs){
@@ -390,12 +501,12 @@ function SetElements(info, decimals, numberIDs, percentageIDs){
     // Normal numbers.
     for (let i = 0; i < numberIDs.length; i++) {
         let id = numberIDs[i]
-        document.getElementById(id).innerHTML = info.get(id).toFixed(decimals);
+        SetNumber(id, info.get(id), decimals)
     }
     // Percentages.
     for (let j = 0; j < percentageIDs.length; j++) {
         let id = percentageIDs[j]
-        document.getElementById(id).innerHTML = (info.get(id)*100).toFixed(decimals)+"%";
+        SetPercentage(id, info.get(id), decimals)
     }
 }
 
