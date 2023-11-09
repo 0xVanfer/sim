@@ -27,9 +27,14 @@
     margin-top: 2%;
 }
 
-.column.incentives {
+.column.apr {
     width: 80%;
     font-size: 75%;
     margin-top: 2%;
 }
 
+.column.multiUserIncentives {
+    width: 80%;
+    font-size: 75%;
+    margin-top: 2%;
+}

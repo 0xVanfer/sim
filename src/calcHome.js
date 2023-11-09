@@ -18,7 +18,7 @@ function ReadElements() {
     // ====== The normal params read from the ids.
     for (let i = 0; i < ids2record.length; i++) {
         try {
-            info.set(ids2record[i], parseFloat(document.getElementById(ids2record[i]).textContent));
+            info.set(ids2record[i], ReadPositiveNumber(ids2record[i]));
         } catch {
             continue;
         }

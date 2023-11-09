@@ -1,3 +1,9 @@
+function ReadPositiveNumber(id){
+    let num = parseFloat(document.getElementById(id).textContent)
+    if (!(num>0)) num = 0;
+    return num
+}
+
 function SetNumber(id, value, decimals){
     document.getElementById(id).innerHTML = value.toFixed(decimals);
 }
@@ -21,6 +27,7 @@ function SetError(errorStr){
 // Format timestamp.
 function Timestamp2Time(timestamp){
     SetError("process timestamp error")
+    if (!(timestamp > 0)) timestamp = 0;
 
     date = new Date(timestamp * 1000)
 

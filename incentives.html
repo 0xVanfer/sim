@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style/column.css" />
+        <link rel="stylesheet" type="text/css" href="style/header.css" />
+        <link rel="stylesheet" type="text/css" href="style/param.css" />
+        <link rel="stylesheet" type="text/css" href="style/button.css" />
+        <script src="./src/common.js"></script>
+        <script src="./src/calcIncentives.js"></script>
+        <title>Calc</title>
+    </head>
+    <body>
+        <div class="header">Staple Simulation</div>
+        <div class="topnav">
+            <a href="./index.html" target="_self">Home</a>
+            <a href="./apr.html" target="_self">Apr</a>
+            <a href="./incentives.html" target="_self">Incentives</a>
+        </div>
+
+        <div class="column multiUserIncentives">
+            <div class="topic">Emission Info</div>
+            <form action="" oninput="CalcMultiUserIncentives()">
+                <table>
+                    <tr>
+                        <td>decimals</td>
+                        <td>=</td>
+                        <td class="params" id="decimals" contenteditable>6</td>
+                    </tr>
+                    <tr>
+                        <td>emission / s</td>
+                        <td>=</td>
+                        <td class="params" id="emission" contenteditable>0.001</td>
+                    </tr>
+                    <tr>
+                        <td>start timestamp</td>
+                        <td>=</td>
+                        <td class="params" id="starttimestamp" contenteditable></td>
+                        <td>=</td>
+                        <td id="starttime">2023-11-08 13:49:01</td>
+                    </tr>
+                    <tr>
+                        <td>end timestamp</td>
+                        <td>=</td>
+                        <td class="params" id="endtimestamp" contenteditable></td>
+                        <td>=</td>
+                        <td id="endtime">2023-11-08 13:49:01</td>
+                    </tr>
+                    <tr>
+                        <td>timestamp now</td>
+                        <td>=</td>
+                        <td class="params" id="timestampnow" contenteditable></td>
+                        <td>=</td>
+                        <td id="timenow">2023-11-08 13:49:01</td>
+                    </tr>
+                </table>
+            </form>
+
+            <hr>
+            <div class="topic">Page Settings</div>
+            <form action="" oninput="CalcMultiUserIncentives()">
+                <table>
+                    <tr>
+                        <td></td>
+                        <td>|</td>
+                        <td>user</td>
+                        <td>|</td>
+                        <td>1st operation</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td>2nd operation</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td>3rd operation</td>
+                        <td>|</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>timestamp</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td class="params" id="timestamp0" contenteditable></td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td class="params" id="timestamp1" contenteditable></td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td class="params" id="timestamp2" contenteditable></td>
+                        <td>|</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>time</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td id="time0">2023-11-08 13:49:01</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td id="time1">2023-11-08 13:49:01</td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td id="time2">2023-11-08 13:49:01</td>
+                        <td>|</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>|</td>
+                        <td></td>
+                        <td>|</td>
+                        <td>shares</td>
+                        <td>|</td>
+                        <td>incentives</td>
+                        <td>|</td>
+                        <td>shares</td>
+                        <td>|</td>
+                        <td>incentives</td>
+                        <td>|</td>
+                        <td>shares</td>
+                        <td>|</td>
+                        <td>incentives</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>|</td>
+                        <td>0</td>
+                        <td>|</td>
+                        <td class="params" id="shares00" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince00"></td>
+                        <td>|</td>
+                        <td class="params" id="shares01" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince01"></td>
+                        <td>|</td>
+                        <td class="params" id="shares02" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince02"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>|</td>
+                        <td>1</td>
+                        <td>|</td>
+                        <td class="params" id="shares10" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince10"></td>
+                        <td>|</td>
+                        <td class="params" id="shares11" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince11"></td>
+                        <td>|</td>
+                        <td class="params" id="shares12" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince12"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>|</td>
+                        <td>2</td>
+                        <td>|</td>
+                        <td class="params" id="shares20" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince20"></td>
+                        <td>|</td>
+                        <td class="params" id="shares21" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince21"></td>
+                        <td>|</td>
+                        <td class="params" id="shares22" contenteditable></td>
+                        <td>|</td>
+                        <td id="ince22"></td>                        
+                    </tr>
+                    
+                </table>
+            </form>
+        </div>
+
+        
+
+        <div class="column error">
+            <div>
+                <div class="topic">Error</div>
+                <form action="">
+                    <table>
+                        <tr>
+                            <td id="error">failed</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+
+        <script>
+            CalcMultiUserIncentives();
+        </script>
+    </body>
+</html>

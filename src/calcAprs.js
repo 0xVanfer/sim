@@ -1,14 +1,16 @@
 function CalcApr(){
-    let decimals = parseFloat(document.getElementById("decimals").textContent)
-    let timestampNow = parseFloat(document.getElementById("timestampnow").textContent)
+    let decimals = ReadPositiveNumber("decimals")
+    let timestampNow = ReadPositiveNumber("timestampnow")
+
+    SetTime("timenow", timestampNow)
 
     for (let vtpNum = 0; vtpNum < 3; vtpNum++) {
-        let emission = parseFloat(document.getElementById("emission"+String(vtpNum)).textContent)
-        let startt = parseFloat(document.getElementById("startt"+String(vtpNum)).textContent)
-        let endt = parseFloat(document.getElementById("endt"+String(vtpNum)).textContent)
-        let lia = parseFloat(document.getElementById("lia"+String(vtpNum)).textContent)
-        let unpr = parseFloat(document.getElementById("unpr"+String(vtpNum)).textContent)
-        let inpr = parseFloat(document.getElementById("inpr"+String(vtpNum)).textContent)
+        let emission = ReadPositiveNumber("emission"+String(vtpNum))
+        let startt = ReadPositiveNumber("startt"+String(vtpNum))
+        let endt = ReadPositiveNumber("endt"+String(vtpNum))
+        let lia = ReadPositiveNumber("lia"+String(vtpNum))
+        let unpr = ReadPositiveNumber("unpr"+String(vtpNum))
+        let inpr = ReadPositiveNumber("inpr"+String(vtpNum))
 
         let apr = 0;
         if (!(emission==0 || lia == 0 || startt > timestampNow || endt < timestampNow)){
@@ -22,8 +24,8 @@ function CalcApr(){
 }
 
 function CalcBestApr(){
-    let decimals = parseFloat(document.getElementById("decimals").textContent)
-    let totalcredits = parseFloat(document.getElementById("totalcredits").textContent)
+    let decimals = ReadPositiveNumber("decimals")
+    let totalcredits = ReadPositiveNumber("totalcredits")
 
     let vtpLength = 0;
     for (let vtpNum = 0; vtpNum < 100; vtpNum++) {
@@ -37,9 +39,9 @@ function CalcBestApr(){
 
     let vtps = []
     for (let vtpNum = 0; vtpNum < vtpLength; vtpNum++) {
-        let mar = parseFloat(document.getElementById("mar"+String(vtpNum)).textContent)/100
-        let credit = parseFloat(document.getElementById("credit"+String(vtpNum)).textContent)
-        let apr = parseFloat(document.getElementById("aprmax"+String(vtpNum)).textContent)/100
+        let mar = ReadPositiveNumber("mar"+String(vtpNum))/100
+        let credit = ReadPositiveNumber("credit"+String(vtpNum))
+        let apr = ReadPositiveNumber("aprmax"+String(vtpNum))/100
 
         let vtpInfo = new Map()
         vtpInfo.set("id",vtpNum)
