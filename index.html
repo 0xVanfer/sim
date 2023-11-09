@@ -77,6 +77,22 @@
                 Double-click the 'execute' buttons to execute the actions.
             </div>
 
+            <hr></hr>
+
+            <div>
+                <button class="data-button" onclick="ResetData()">Reset Data</button>
+            </div>
+            <br>
+            <div>
+                <button class="data-button" onclick="ExportData()">Export Data</button>
+            </div>
+            <br>
+            <div>
+                <button class="data-button" onclick="ImportData()">Import Data</button>
+                <div>
+                    Data: <div class="params" id="data2import" contenteditable></div>
+                </div>  
+            </div>
         </div>
 
         <!-- VtpToken 0 -->
@@ -540,6 +556,8 @@
                     </table>
                 </form>
             </div>
+            <br>
+            <div id="exportedData"></div>
         </div>
 
         <script>

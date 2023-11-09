@@ -1,24 +1,24 @@
+const ids2record = [
+    "decimals",// page decimals
+    "n", "rrs", "p",// vtp params
+    "a0", "a1", "aed0", "aed1", // asset, allocated, liability
+    "op0", "op1",// oracle prices
+    "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
+    "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfr0", "pfr1", // fee realted
+    "alb0", "alb1", // alr lower bound
+    "sa", "aa", "da", // swap, (de)allocate amount
+    "discount", // swap fee discount
+    "srofr", "affr", "dffr", // frontend results
+];
+
 function ReadElements() {
     let info = new Map();
     info.set("mapName", "elements");
 
     // ====== The normal params read from the ids.
-
-    let ids = [
-        "decimals",// page decimals
-        "n", "rrs", "p",// vtp params
-        "a0", "a1", "aed0", "aed1", // asset, allocated, liability
-        "op0", "op1",// oracle prices
-        "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
-        "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfr0", "pfr1", // fee realted
-        "alb0", "alb1", // alr lower bound
-        "sa", "aa", "da", // swap, (de)allocate amount
-        "discount", // swap fee discount
-        "srofr", "affr", "dffr", // frontend results
-    ];
-    for (let i = 0; i < ids.length; i++) {
+    for (let i = 0; i < ids2record.length; i++) {
         try {
-            info.set(ids[i], parseFloat(document.getElementById(ids[i]).textContent));
+            info.set(ids2record[i], parseFloat(document.getElementById(ids2record[i]).textContent));
         } catch {
             continue;
         }
@@ -526,8 +526,56 @@ function CalcHome() {
 
     // Calc swap.
     let swapRes = CalcSwap(info)
-    // SetElements(swapRes, decimals, ["sro"], ["spi", "srode"])
     SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1"], ["spi", "srode"])
 
     SetError("success")
+}
+
+function ExportData(){
+    let info = ReadElements();
+    let obj= Object.create(null);
+    for (let[k,v] of info) {
+        obj[k] = v;
+    }
+
+    SetString("exportedData", JSON.stringify(obj))
+
+    SetError("export data success")
+}
+
+function ResetData(){
+    let initStr =`{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":0,"ua1":0,"us0":0,"us1":0,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":10,"da":10,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"l0":10000,"l1":10000,"alr0":1,"alr1":1,"ralr":1,"ralr0":1,"ralr1":1,"po":1,"po0":1,"po1":1,"pa":1,"pa0":1,"pa1":1,"ras0":500.4170141784821,"ras1":500.4170141784821}`
+    ImportData(initStr)
+    SetError("reset data success")
+}
+
+
+function ImportData(str = ""){
+    if (str == "") str = document.getElementById("data2import").textContent;
+
+    let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``)
+        .split(',')
+        .map(pair => pair.split(':'))
+        .reduce((map, [key, value]) => map.set(key, value), new Map());
+
+
+    for (let i = 0; i < ids2record.length; i++){
+        let id = ids2record[i]
+        if (data.get(id) == undefined) {
+            SetError(`data error, "` + id + `" not found`)
+            return
+        }
+    }
+
+    for (let i = 0; i < ids2record.length; i++){
+        let id = ids2record[i]
+        document.getElementById(id).innerHTML = parseFloat(data.get(id));
+    }
+
+    document.getElementById("data2import").innerHTML = ""
+    document.getElementById("exportedData").innerHTML = ""
+
+    CalcHome()
+
+    SetError("import data success")
 }

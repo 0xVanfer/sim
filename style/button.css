@@ -10,3 +10,12 @@
 .execute-button:hover {
     background-color: #2980b9; 
 }
+
+.data-button{
+    background-color: black; 
+    color: #fff; 
+    border: none; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
