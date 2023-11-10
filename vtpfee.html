@@ -8,6 +8,7 @@
         <link rel="stylesheet" type="text/css" href="style/header.css" />
         <link rel="stylesheet" type="text/css" href="style/param.css" />
         <link rel="stylesheet" type="text/css" href="style/button.css" />
+        <link rel="stylesheet" type="text/css" href="style/tip.css" />
         <script src="./src/common.js"></script>
         <script src="./src/calcHome.js"></script>
         <title>Calc</title>
@@ -23,7 +24,22 @@
 
         <!-- Vtp Params -->
         <div class="column vtp">
-            <div class="topic">Vtp Param</div>
+            <div class="topic">
+                Vtp Param 
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        <li>n: The larger the value of 'n,' the more sensitive 'ralr' is to deviations of oracle price and market price.</li>
+                        <li>rrs: Reasonable Ralr Shift.</li>
+                        <li>p: Threshold for heavy punishments (or rewards).</li>
+                        <br>
+                        <li>ralr: Relative Asset-Liability Ratio</li>
+                        <li>Po: Price by Oracle, the quotient of the oracle's price.</li>
+                        <li>Pa: Price Adjusted by ralr from Po.</li>
+                    </div>
+                </span>
+            </div>
+            
             <form action="" oninput="CalcHome()">
                 <table>
                     <tr>
@@ -62,11 +78,17 @@
 
             <hr>
 
-            <div class="topic">Page Param</div>
+            <div class="topic">
+                Page Param
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">The 'decimals' parameter here applies to the entire page and is used to determine the decimal precision of the output numerical values.</div>
+                </span>
+            </div>
             <form action="" oninput="CalcHome()">
                 <table>
                     <tr>
-                        <td>decimal(round)</td>
+                        <td>decimal</td>
                         <td>=</td>
                         <td class="params" id="decimals" contenteditable>6</td>
                     </tr>
@@ -76,21 +98,27 @@
             <hr></hr>
 
             <div>
-                Double-click the 'execute' buttons to execute the actions.
-            </div>
-
-            <hr></hr>
-
-            <div>
                 <button class="data-button" onclick="ResetData()">Reset Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Reset all input parameters to their default values.</div>
+                </span>
             </div>
             <br>
             <div>
                 <button class="data-button" onclick="ExportData()">Export Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Output the parameters on the page as a string for the purpose of reproducing them on other pages or devices.</div>
+                </span>
             </div>
             <br>
             <div>
                 <button class="data-button" onclick="ImportData()">Import Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Paste the correct structure in the input box below to reproduce the conditions of other vtps.</div>
+                </span>
             </div>
             <br>
             <div>
@@ -106,7 +134,37 @@
 
         <!-- VtpToken 0 -->
         <div class="column vtpToken">
-            <div class="topic">Token 0</div>
+            <div class="topic">
+                Token 0
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        <li>asset: The amount of asset of this token within this vtp.</li>
+                        <li>allocated: The amount allocated by the liquidity providers.</li>
+                        <li>feeCollected: Unclaimed fee, collected for the users.</li>
+                        <li>liability: = allocated + feeCollected. The vtp's liability of all the users.</li>
+                        <li>alr: = asset / liability. Asset-Liability Ratio.</li>
+                        <br>
+                        <li>oracle price: Token price read from the oracle.</li>
+                        <li>historyFee: All the fees collected for the users in history.</li>
+                        <li>protocolFee: Fee collected for the protocol.</li>
+                        <br>
+                        <li>swapInFee: Fee ratio during the swapIn process.</li>
+                        <li>swapOutFee: Fee ratio during the swapOut process.</li>
+                        <li>protocolFeeRate: The ratio that the protocol will take from all the swap fees.(not including allocation and deallocation fee.)</li>
+                        <li>alrLowerBound: The alr should never be lower than this param. A swap that will lead the alr to be lower than alrLowerBound will be reverted.</li>
+                        <br>
+                        When calculating deallocation, we need the following params.
+                        <li>user allocation: User's allocation in this vtpToken(one side of the vtp).</li>
+                        <li>user shares: The shares of this user within this vtpToken.</li>
+                        <li>all shares: All the shares within this vtpToken.</li>
+                        <br>
+                        <li>ralr0: Relative Asset-Liability Ratio of this token. = alr of this token / alr of another token.</li>
+                        <li>Po0: Price by Oracle. = oracle price of this token / oracle price of another token.</li>
+                        <li>Pa0: Price Adjusted by ralr0 from Po0.</li>
+                    </div>
+                </span>
+            </div>
             <form action="" oninput="CalcHome()">
                 <table>
                     <tr>
@@ -313,7 +371,17 @@
         <!-- Swap -->
         <div class="column action">
             <div>
-                <div class="topic">Swap</div>
+                <div class="topic">
+                    Swap
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            discount: The swap fee discount of this user. 
+                            <br>
+                            MUST be within 0~1. Use 0.1 for 10%. 
+                        </div>
+                    </span>
+                </div>
                 <form action="" oninput="CalcHome()">
                     <table>
                         <tr>
@@ -343,7 +411,18 @@
             <hr></hr>
 
             <div>
-                <div class="topic">Result</div>
+                <div class="topic">
+                    Result
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            <li>feeIn: Fee to be collected for "swapIn".</li> 
+                            <li>feeOut: Fee to be collected for "swapOut".</li> 
+                            <li>realOut: The amount user will actually get.</li> 
+                            <li>impact: = (value of tokenOut) / (value of tokenIn) - 1</li>
+                        </div>
+                    </span>
+                </div>
                 <form action="" oninput="CalcHome()">
                     <table>
                         <tr>
@@ -494,7 +573,17 @@
         <!-- Deallocate -->
         <div class="column action">
             <div>
-                <div class="topic">Deallocate</div>
+                <div class="topic">
+                    Deallocate
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            Will claim the fees collected along with deallocation.
+                            <br>
+                            Deallocate 0 to claim the fee.
+                        </div>
+                    </span>
+                </div>
                 <form action="" oninput="CalcHome()">
                     <table>
                         <tr>

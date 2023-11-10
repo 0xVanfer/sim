@@ -1,0 +1,24 @@
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 80%;
+}
+
+.tooltip .tooltip-text {
+    width: 400px;
+    font-size: 50%;
+    color:midnightblue;
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 1px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.tooltip:hover .tooltip-text {
+    display: block;
+}
