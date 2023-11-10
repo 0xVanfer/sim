@@ -4,7 +4,7 @@ const NUMBER_ID_TO_RECORD = [
     "a0", "a1", "aed0", "aed1", // asset, allocated, liability
     "op0", "op1",// oracle prices
     "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
-    "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfr0", "pfr1", // fee realted
+    "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfc0", "pfc1", "hfc0", "hfc1", "pfr0", "pfr1", // fee realted
     "alb0", "alb1", // alr lower bound
     "sa", "aa", "da", // swap, (de)allocate amount
     "discount", // swap fee discount
@@ -17,7 +17,7 @@ const STRING_ID_TO_RECORD = ["executionHistory"]
 
 const INIT_DATA_STR = 
 `
-{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
 `
 
 // The params set by the user.
@@ -480,15 +480,33 @@ function ExecuteSwap(){
     let feeCollectedInID = st == 0 ? "fc0" : "fc1"
     let feeCollectedOutID = st == 0 ? "fc1" : "fc0"
 
-    let feeIn = swapRes.get("sifr")
+    let protocolFeeCollectedInID = st == 0 ? "pfc0" : "pfc1"
+    let protocolFeeCollectedOutID = st == 0 ? "pfc1" : "pfc0"
+
+    let feeHistoryInID = st == 0 ? "hfc0" : "hfc1"
+    let feeHistoryOutID = st == 0 ? "hfc1" : "hfc0"
+
+    let protocolFeeRateInID = st == 0 ? "pfr0" : "pfr1"
+    let protocolFeeRateOutID = st == 0 ? "pfr1" : "pfr0"
+
+    let feeIn = swapRes.get("sifr") 
+    let feeInProtocol = feeIn * info.get(protocolFeeRateInID)
     let feeOut = swapRes.get("sofr")
     let punish = swapRes.get("punish")
+    let feeOutProtocol = (feeOut + punish) * info.get(protocolFeeRateOutID)
+
     let realOut = swapRes.get("sro")
 
     SetNumber(assetInID, info.get(assetInID) + sa, decimals)
     SetNumber(assetOutID, info.get(assetOutID) - realOut, decimals)
-    SetNumber(feeCollectedInID, info.get(feeCollectedInID) + feeIn, decimals)
-    SetNumber(feeCollectedOutID, info.get(feeCollectedOutID) + feeOut + punish, decimals)
+    SetNumber(feeCollectedInID, info.get(feeCollectedInID) + feeIn - feeInProtocol, decimals)
+    SetNumber(feeCollectedOutID, info.get(feeCollectedOutID) + feeOut + punish - feeOutProtocol, decimals)
+
+    SetNumber(feeHistoryInID, info.get(feeHistoryInID) + feeIn - feeInProtocol, decimals)
+    SetNumber(feeHistoryOutID, info.get(feeHistoryOutID) + feeOut + punish - feeOutProtocol, decimals)
+
+    SetNumber(protocolFeeCollectedInID, info.get(protocolFeeCollectedInID) + feeInProtocol, decimals)
+    SetNumber(protocolFeeCollectedOutID, info.get(protocolFeeCollectedOutID) + feeOutProtocol, decimals)
 
     CalcHome()
 
