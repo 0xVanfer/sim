@@ -1,4 +1,4 @@
-const ids2record = [
+const NUMBER_ID_TO_RECORD = [
     "decimals",// page decimals
     "n", "rrs", "p",// vtp params
     "a0", "a1", "aed0", "aed1", // asset, allocated, liability
@@ -11,32 +11,86 @@ const ids2record = [
     "srofr", "affr", "dffr", // frontend results
 ];
 
-function ReadElements() {
+const SELECTION_ID_TO_RECORD = ["at", "dt", "st"/** The tokens chosen. */]
+
+const STRING_ID_TO_RECORD = ["executionHistory"]
+
+// The params set by the user.
+function ReadBaseElements(){
+    SetError("read elements error")
+
     let info = new Map();
     info.set("mapName", "elements");
 
     // ====== The normal params read from the ids.
-    for (let i = 0; i < ids2record.length; i++) {
-        try {
-            info.set(ids2record[i], ReadPositiveNumber(ids2record[i]));
-        } catch {
-            continue;
-        }
+    for (let i = 0; i < NUMBER_ID_TO_RECORD.length; i++) {
+        info.set(NUMBER_ID_TO_RECORD[i], ReadPositiveNumber(NUMBER_ID_TO_RECORD[i]));
     }
 
     // ====== The params read from the selections.
     // The selections: token0 => value = 0; token1 => value = 1.
+    for (let i = 0; i < SELECTION_ID_TO_RECORD.length; i++) {
+        info.set(SELECTION_ID_TO_RECORD[i], parseFloat(document.getElementById(SELECTION_ID_TO_RECORD[i]).value));
+    }
 
-    let selectIDs = [
-        "at", "dt", "st"// swap allocate deallocate token
-    ]
-    for (let i = 0; i < selectIDs.length; i++) {
-        try {
-            info.set(selectIDs[i], parseFloat(document.getElementById(selectIDs[i]).value));
-        } catch {
-            continue;
+    // ====== The string read from the ids.
+    for (let i = 0; i < STRING_ID_TO_RECORD.length; i++) {
+        info.set(STRING_ID_TO_RECORD[i], document.getElementById(STRING_ID_TO_RECORD[i]).textContent);
+    }
+
+    return info;
+}
+
+function WriteBaseElements(data){
+
+    // The data should have the values for the id.
+    {
+        for (let i = 0; i < NUMBER_ID_TO_RECORD.length; i++){
+            let id = NUMBER_ID_TO_RECORD[i]
+            if (data.get(id) == undefined) {
+                SetError(`id "` + id + `" not found`)
+                return
+            }
+        }
+
+        for (let i = 0; i < SELECTION_ID_TO_RECORD.length; i++){
+            let id = SELECTION_ID_TO_RECORD[i]
+            if (data.get(id) == undefined) {
+                SetError(`id "` + id + `" not found`)
+                return
+            }
+        }
+
+        for (let i = 0; i < STRING_ID_TO_RECORD.length; i++){
+            let id = STRING_ID_TO_RECORD[i]
+            if (data.get(id) == undefined) {
+                SetError(`id "` + id + `" not found`)
+                return
+            }
         }
     }
+
+    // Write the elements.
+    {
+        for (let i = 0; i < NUMBER_ID_TO_RECORD.length; i++){
+            let id = NUMBER_ID_TO_RECORD[i]
+            document.getElementById(id).innerHTML = parseFloat(data.get(id));
+        }
+
+        for (let i = 0; i < SELECTION_ID_TO_RECORD.length; i++){
+            let id = SELECTION_ID_TO_RECORD[i]
+            document.getElementById(id).selectedIndex = parseInt(data.get(id));
+        }
+
+        for (let i = 0; i < STRING_ID_TO_RECORD.length; i++){
+            let id = STRING_ID_TO_RECORD[i]
+            document.getElementById(id).innerHTML = data.get(id);
+        }
+    }
+}
+
+function GetParams() {
+    let info = ReadBaseElements()
 
     if (info.get("discount") > 1) {
         SetError("swap discount should be within 0 ~ 1. use 0.1 for 10%");
@@ -341,6 +395,7 @@ function CalcDeallocate(info) {
     let amount = da + earn;
 
     deallocateRes.set("s2b", s2b);
+    deallocateRes.set("earn", earn);
     deallocateRes.set("amount", amount);
 
     if (amount == 0 || a0 == 0 || a1 == 0) {
@@ -389,8 +444,15 @@ function CalcDeallocate(info) {
     return deallocateRes;
 }
 
+function AddRecord(action, amount, tokenID){
+    let record = document.getElementById("executionHistory").innerHTML
+    if (record == 0) record = "";
+    record = record + "<br>" + action + "-" + amount + "-token" + tokenID + ";"
+    SetString("executionHistory", record)
+}
+
 function ExecuteSwap(){
-    let info = ReadElements();
+    let info = GetParams();
     let decimals = info.get("decimals");
     SetError("execute swap failed")
 
@@ -418,11 +480,13 @@ function ExecuteSwap(){
 
     CalcHome()
 
+    AddRecord("swap", sa, st)
+
     SetError("execute swap success")
 }
 
 function ExecuteAllocation(){
-    let info = ReadElements();
+    let info = GetParams();
     let decimals = info.get("decimals");
     SetError("execute allocation failed")
 
@@ -456,11 +520,13 @@ function ExecuteAllocation(){
 
     CalcHome()
 
+    AddRecord("allocate  ", aa, at)
+
     SetError("execute allocation success")
 }
 
 function ExecuteDeallocation(){
-    let info = ReadElements();
+    let info = GetParams();
     let decimals = info.get("decimals");
     SetError("execute deallocation failed")
 
@@ -473,6 +539,8 @@ function ExecuteDeallocation(){
     let amount = deallocateRes.get("amount")
     // deallocate fee
     let df = deallocateRes.get("df");
+    // fees to claim
+    let earn = deallocateRes.get("earn");
 
     let assetID = dt == 0 ? "a0" : "a1"
     let allocatedID = dt == 0 ? "aed0" : "aed1"
@@ -483,14 +551,21 @@ function ExecuteDeallocation(){
     let feeCollectedID = dt == 0 ? "fc0" : "fc1"
 
     SetNumber(assetID, info.get(assetID) - amount + df, decimals)
+
+    // Asset.
+    SetNumber(assetID, info.get(assetID) - amount + df, decimals)
+    // Allocated.
     SetNumber(allocatedID, info.get(allocatedID) - da, decimals)
-    SetNumber(feeCollectedID, info.get(feeCollectedID) + df, decimals)
+    // Fee collected.
+    SetNumber(feeCollectedID, info.get(feeCollectedID) + df - earn, decimals)
 
     SetNumber(userAllocationID, info.get(userAllocationID) - da, decimals)
     SetNumber(userShareID, info.get(userShareID) - deallocateRes.get("s2b"), decimals)
     SetNumber(totalShareID, info.get(totalShareID) - deallocateRes.get("s2b"), decimals)
 
     CalcHome()
+
+    AddRecord("deallocate", da, dt)
 
     SetError("execute deallocation success")
 }
@@ -512,7 +587,7 @@ function SetElements(info, decimals, numberIDs, percentageIDs){
 
 function CalcHome() {
     // Get all the elements.
-    let info = ReadElements();
+    let info = GetParams();
     let decimals = info.get("decimals");
     SetElements(info, decimals,["l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", "po", "po0", "po1", "pa", "pa0", "pa1"], [])
 
@@ -532,7 +607,7 @@ function CalcHome() {
 }
 
 function ExportData(){
-    let info = ReadElements();
+    let info = ReadBaseElements();
     let obj= Object.create(null);
     for (let[k,v] of info) {
         obj[k] = v;
@@ -545,33 +620,22 @@ function ExportData(){
 }
 
 function ResetData(){
-    let initStr =`{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":0,"ua1":0,"us0":0,"us1":0,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":10,"da":10,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"l0":10000,"l1":10000,"alr0":1,"alr1":1,"ralr":1,"ralr0":1,"ralr1":1,"po":1,"po0":1,"po1":1,"pa":1,"pa0":1,"pa1":1,"ras0":500.4170141784821,"ras1":500.4170141784821}`
+    let initStr =`
+    {"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":10,"da":10,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+    `
     ImportData(initStr)
     SetError("reset data success")
 }
 
-
 function ImportData(str = ""){
-    if (str == "") str = document.getElementById("data2import").textContent;
+    if (str == "" || str == undefined || str.length == 0) str = document.getElementById("data2import").textContent;
 
     let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``)
         .split(',')
         .map(pair => pair.split(':'))
         .reduce((map, [key, value]) => map.set(key, value), new Map());
 
-
-    for (let i = 0; i < ids2record.length; i++){
-        let id = ids2record[i]
-        if (data.get(id) == undefined) {
-            SetError(`data error, "` + id + `" not found`)
-            return
-        }
-    }
-
-    for (let i = 0; i < ids2record.length; i++){
-        let id = ids2record[i]
-        document.getElementById(id).innerHTML = parseFloat(data.get(id));
-    }
+    WriteBaseElements(data)
 
     document.getElementById("data2import").innerHTML = ""
     document.getElementById("exportedData").innerHTML = ""
