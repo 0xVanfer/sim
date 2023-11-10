@@ -485,6 +485,12 @@
 
             <div>
                 <button class="execute-button" id="executeSwap" ondblclick="ExecuteSwap()">Execute This Swap</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
             </div>
         </div>
 
@@ -568,6 +574,12 @@
 
             <div>
                 <button class="execute-button" id="executeAllocate" ondblclick="ExecuteAllocation()">Execute This Allocation</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
             </div>
         </div>
 
@@ -666,12 +678,26 @@
 
             <div>
                 <button class="execute-button" id="executeDeallocate" ondblclick="ExecuteDeallocation()">Execute This Deallocation</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
             </div>
         </div>
 
         <div class="column error">
             <div>
-                <div class="topic">Error</div>
+                <div class="topic">
+                    Error
+                    <span class="tooltip short">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            Show the result.
+                        </div>
+                    </span>
+                </div>
                 <form action="">
                     <table>
                         <tr>
@@ -683,7 +709,15 @@
 
             <hr>
 
-            <div class="topic">Executions</div>
+            <div class="topic">
+                Executions
+                <span class="tooltip short">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        Record operations.
+                    </div>
+                </span>
+            </div>
             <div id="executionHistory"></div>
         </div>
 

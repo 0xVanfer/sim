@@ -22,3 +22,7 @@
 .tooltip:hover .tooltip-text {
     display: block;
 }
+
+.tooltip.short .tooltip-text {
+    width: 100px;
+}
