@@ -374,7 +374,7 @@ function CalcDeallocate(info) {
     let pa0 = dt == 0 ? info.get("pa0") : info.get("pa1");
 
     // alr lower bound
-    let alb0 = dt == 0 ? info.get("pa0") : info.get("alb0");
+    let alb0 = dt == 0 ? info.get("alb0") : info.get("alb1");
 
     // user info
     let ua0 = dt == 0 ? info.get("ua0") : info.get("ua1");
