@@ -267,7 +267,7 @@ function CalcSwap(info) {
 
     let realOut = estiOut - punish + reward
     // price impact
-    let impact = (realOut * op1) / sa * op0 - 1
+    let impact = (realOut * op1) / (sa * op0) - 1
 
     swapRes.set("sifr", feeIn);
     swapRes.set("realIn", realIn);
@@ -580,6 +580,10 @@ function ExecuteDeallocation(){
     AddRecord("deallocate", da, dt)
 
     SetError("execute deallocation success")
+}
+
+function UpdateOraclePrice(id){
+    AddRecord("op change", ReadPositiveNumber(id), id == "op0" ? 0 : 1)
 }
 
 function SetElements(info, decimals, numberIDs, percentageIDs){
