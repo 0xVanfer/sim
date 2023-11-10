@@ -15,6 +15,11 @@ const SELECTION_ID_TO_RECORD = ["at", "dt", "st"/** The tokens chosen. */]
 
 const STRING_ID_TO_RECORD = ["executionHistory"]
 
+const INIT_DATA_STR = 
+`
+{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+`
+
 // The params set by the user.
 function ReadBaseElements(){
     SetError("read elements error")
@@ -330,7 +335,7 @@ function CalcAllocate(info) {
     if (fee > aa) fee = aa;
 
     allocateRes.set("af", fee);
-    allocateRes.set("afr", fee / aa);
+    allocateRes.set("afr", aa == 0 ? 0 : fee / aa);
 
     let front = info.get("affr");
     let deviation = fee == 0 ? 0 : front / fee - 1
@@ -351,6 +356,15 @@ function CalcDeallocate(info) {
     deallocateRes.set("df", 0);
     deallocateRes.set("dfr", 0);
     deallocateRes.set("dfde", 0);
+
+    deallocateRes.set("s2b", 0);
+    deallocateRes.set("earn", 0);
+    deallocateRes.set("amount", 0);
+
+    deallocateRes.set("df", 0);
+    deallocateRes.set("dfr", 0);
+    deallocateRes.set("dfde", 0);
+    deallocateRes.set("alrad", 0);
 
     // amount, token
     let da = info.get("da");
@@ -381,6 +395,7 @@ function CalcDeallocate(info) {
     let us0 = dt == 0 ? info.get("us0") : info.get("us1");
     let ts0 = dt == 0 ? info.get("ts0") : info.get("ts1");
 
+    if (ts0 == 0 || l0 == 0) return deallocateRes;
     // user shares value = share price * user shares
     let sharePrice = l0 / ts0
     let usv0 = sharePrice * us0
@@ -398,10 +413,7 @@ function CalcDeallocate(info) {
     deallocateRes.set("earn", earn);
     deallocateRes.set("amount", amount);
 
-    if (amount == 0 || a0 == 0 || a1 == 0) {
-        // fee = 0
-        return deallocateRes;
-    }
+    if (amount == 0 || a0 == 0 || a1 == 0) return deallocateRes;
 
     // normal part
     let np = amount;
@@ -431,7 +443,7 @@ function CalcDeallocate(info) {
     if (fee > amount) fee = amount;
    
     deallocateRes.set("df", fee);
-    deallocateRes.set("dfr", fee / da);
+    deallocateRes.set("dfr", fee / amount);
 
     let front = info.get("dffr");
     let deviation = fee == 0 ? 0 : front / fee - 1
@@ -597,7 +609,7 @@ function CalcHome() {
 
     // Calc deallocate.
     let deallocateRes = CalcDeallocate(info)
-    SetElements(deallocateRes, decimals, ["df", "alrad"], ["dfr", "dfde"])
+    SetElements(deallocateRes, decimals, ["df", "earn", "alrad"], ["dfr", "dfde"])
 
     // Calc swap.
     let swapRes = CalcSwap(info)
@@ -620,10 +632,7 @@ function ExportData(){
 }
 
 function ResetData(){
-    let initStr =`
-    {"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":10,"da":10,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
-    `
-    ImportData(initStr)
+    ImportData(INIT_DATA_STR)
     SetError("reset data success")
 }
 
