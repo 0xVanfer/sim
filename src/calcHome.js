@@ -279,8 +279,8 @@ function CalcSwap(info) {
     swapRes.set("swapGet", swapGet);
     swapRes.set("sofr", feeOut);
     swapRes.set("estiOut", estiOut);
-    swapRes.set("punish", punish);
-    swapRes.set("reward", reward);
+    swapRes.set("spr", punish);
+    swapRes.set("srr", reward);
     swapRes.set("sro", realOut);
     swapRes.set("spi", impact);
 
@@ -521,7 +521,7 @@ function ExecuteSwap(){
     let feeIn = swapRes.get("sifr") 
     let feeInProtocol = feeIn * info.get(protocolFeeRateInID)
     let feeOut = swapRes.get("sofr")
-    let punish = swapRes.get("punish")
+    let punish = swapRes.get("spr")
     let feeOutProtocol = (feeOut + punish) * info.get(protocolFeeRateOutID)
 
     let realOut = swapRes.get("sro")
@@ -665,7 +665,7 @@ function CalcHome() {
 
     // Calc swap.
     let swapRes = CalcSwap(info)
-    SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1"], ["spi", "srode"])
+    SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1", "spr", "srr"], ["spi", "srode"])
 
     SetError("success")
 }
