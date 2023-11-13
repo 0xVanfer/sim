@@ -8,11 +8,21 @@ function ReadPositiveNumber(id){
 
 // Set the element to value with fixed decimals.
 function SetNumber(id, value, decimals){
+    if (decimals == undefined) decimals = ReadPositiveNumber("decimals")
     document.getElementById(id).innerHTML = value.toFixed(decimals);
+}
+
+
+// += value
+function SetNumberAdd(id, value, decimals){
+    if (decimals == undefined) decimals = ReadPositiveNumber("decimals")
+    let num = ReadPositiveNumber(id)
+    SetNumber(id, num + value, decimals)
 }
 
 // Set the element to percentage.
 function SetPercentage(id, value, decimals){
+    if (decimals == undefined) decimals = ReadPositiveNumber("decimals")
     document.getElementById(id).innerHTML = (value*100).toFixed(decimals)+"%";
 }
 
@@ -47,4 +57,12 @@ function Timestamp2Time(timestamp){
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
     return formattedDate + " " + formattedTime
+}
+
+function GreyButton(id, isGrey = true){
+    if (isGrey) { 
+        document.getElementById(id).classList.add('grayed-out');
+    } else { 
+        document.getElementById(id).classList.remove('grayed-out');
+    }
 }

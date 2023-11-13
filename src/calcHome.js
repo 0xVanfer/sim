@@ -1,6 +1,7 @@
 const NUMBER_ID_TO_RECORD = [
     "decimals",// page decimals
     "n", "rrs", "p",// vtp params
+    "uwb0", "uwb1", "uwlpb0", "uwlpb1", // user wallet balance
     "a0", "a1", "aed0", "aed1", // asset, allocated, liability
     "op0", "op1",// oracle prices
     "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
@@ -17,7 +18,7 @@ const STRING_ID_TO_RECORD = ["executionHistory"]
 
 const INIT_DATA_STR = 
 `
-{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
 `
 
 // The params set by the user.
@@ -356,11 +357,8 @@ function CalcAllocate(info) {
     let alraa = (a0 + aa) / (l0 + aa)
     allocateRes.set("alraa", alraa);
 
-    if (allocationFeeRate == 1 || aa == 0) {
-        document.getElementById('executeAllocate').classList.add('grayed-out');
-    } else { 
-        document.getElementById('executeAllocate').classList.remove('grayed-out');
-    }
+    let shouldGrey = allocationFeeRate == 1 || aa == 0
+    GreyButton("executeAllocate", shouldGrey)
    
     return allocateRes;
 }
@@ -412,7 +410,7 @@ function CalcDeallocate(info) {
     let ts0 = dt == 0 ? info.get("ts0") : info.get("ts1");
 
     if (ts0 == 0 || l0 == 0) {
-        document.getElementById('executeDeallocate').classList.add('grayed-out');
+        GreyButton("executeDeallocate", true)
         return deallocateRes;
     }
 
@@ -434,7 +432,7 @@ function CalcDeallocate(info) {
     deallocateRes.set("amount", amount);
 
     if (amount == 0 || a0 == 0 || a1 == 0) {
-        document.getElementById('executeDeallocate').classList.add('grayed-out');
+        GreyButton("executeDeallocate", true)
         return deallocateRes;
     }
 
@@ -476,11 +474,8 @@ function CalcDeallocate(info) {
     let alrad = (a0 - amount + fee) / (l0 - amount)
     deallocateRes.set("alrad", alrad);
 
-    if ((fee == amount && fee != 0) || amount > l0/2 || amount > a0/2 || da >= ua0) {
-        document.getElementById('executeDeallocate').classList.add('grayed-out');
-    } else {
-        document.getElementById('executeDeallocate').classList.remove('grayed-out');
-    }
+    let shouldGrey = (fee == amount && fee != 0) || amount > l0/2 || amount > a0/2 || da >= ua0
+    GreyButton("executeDeallocate", shouldGrey)
    
     return deallocateRes;
 }
@@ -502,6 +497,10 @@ function ExecuteSwap(){
     let sa = info.get("sa");
     // swap token
     let st = info.get("st");
+
+    // wallet balance
+    let balanceInID = st == 0 ? "uwb0" : "uwb1"
+    let balanceOutID = st == 0 ? "uwb1" : "uwb0"
 
     let assetInID = st == 0 ? "a0" : "a1"
     let assetOutID = st == 0 ? "a1" : "a0"
@@ -526,16 +525,23 @@ function ExecuteSwap(){
 
     let realOut = swapRes.get("sro")
 
-    SetNumber(assetInID, info.get(assetInID) + sa, decimals)
-    SetNumber(assetOutID, info.get(assetOutID) - realOut, decimals)
-    SetNumber(feeCollectedInID, info.get(feeCollectedInID) + feeIn - feeInProtocol, decimals)
-    SetNumber(feeCollectedOutID, info.get(feeCollectedOutID) + feeOut + punish - feeOutProtocol, decimals)
+    // wallet balance
+    SetNumberAdd(balanceInID, - sa, decimals)
+    SetNumberAdd(balanceOutID, realOut, decimals)
 
-    SetNumber(feeHistoryInID, info.get(feeHistoryInID) + feeIn - feeInProtocol, decimals)
-    SetNumber(feeHistoryOutID, info.get(feeHistoryOutID) + feeOut + punish - feeOutProtocol, decimals)
+    // asset
+    SetNumberAdd(assetInID, sa, decimals)
+    SetNumberAdd(assetOutID, - realOut, decimals)
 
-    SetNumber(protocolFeeCollectedInID, info.get(protocolFeeCollectedInID) + feeInProtocol, decimals)
-    SetNumber(protocolFeeCollectedOutID, info.get(protocolFeeCollectedOutID) + feeOutProtocol, decimals)
+    // fee related
+    SetNumberAdd(feeCollectedInID, feeIn - feeInProtocol, decimals)
+    SetNumberAdd(feeCollectedOutID, feeOut + punish - feeOutProtocol, decimals)
+
+    SetNumberAdd(feeHistoryInID, feeIn - feeInProtocol, decimals)
+    SetNumberAdd(feeHistoryOutID, feeOut + punish - feeOutProtocol, decimals)
+
+    SetNumberAdd(protocolFeeCollectedInID, feeInProtocol, decimals)
+    SetNumberAdd(protocolFeeCollectedOutID, feeOutProtocol, decimals)
 
     CalcHome()
 
@@ -559,6 +565,8 @@ function ExecuteAllocation(){
     // real allocate
     let realAllo = aa - af
 
+    let lpBalanceID = at == 0 ? "uwlpb0" : "uwlpb1"
+
     let assetID = at == 0 ? "a0" : "a1"
     let allocatedID = at == 0 ? "aed0" : "aed1"
     let liabilityID = at == 0 ? "l0" : "l1"
@@ -569,13 +577,15 @@ function ExecuteAllocation(){
 
     let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID) + af)
 
-    SetNumber(assetID, info.get(assetID) + aa, decimals)
-    SetNumber(allocatedID, info.get(allocatedID) + realAllo, decimals)
-    SetNumber(feeCollectedID, info.get(feeCollectedID) + af, decimals)
+    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(af), decimals)
 
-    SetNumber(userAllocationID, info.get(userAllocationID) + realAllo, decimals)
-    SetNumber(userShareID, info.get(userShareID) + userSharesAdd, decimals)
-    SetNumber(totalShareID, info.get(totalShareID) + userSharesAdd, decimals)
+    SetNumberAdd(assetID, aa, decimals)
+    SetNumberAdd(allocatedID, realAllo, decimals)
+    SetNumberAdd(feeCollectedID, af, decimals)
+
+    SetNumberAdd(userAllocationID, realAllo, decimals)
+    SetNumberAdd(userShareID, userSharesAdd, decimals)
+    SetNumberAdd(totalShareID, userSharesAdd, decimals)
 
     CalcHome()
 
@@ -601,13 +611,18 @@ function ExecuteDeallocation(){
     // fees to claim
     let earn = deallocateRes.get("earn");
 
+    let balanceID = dt == 0 ? "uwb0" : "uwb1"
+    let lpBalanceID = dt == 0 ? "uwlpb0" : "uwlpb1"
+
     let assetID = dt == 0 ? "a0" : "a1"
     let allocatedID = dt == 0 ? "aed0" : "aed1"
-    let liabilityID = dt == 0 ? "l0" : "l1"
     let userAllocationID = dt == 0 ? "ua0" : "ua1"
     let userShareID = dt == 0 ? "us0" : "us1"
     let totalShareID = dt == 0 ? "ts0" : "ts1"
     let feeCollectedID = dt == 0 ? "fc0" : "fc1"
+
+    SetNumberAdd(balanceID, earn, decimals)
+    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(df), decimals)
 
     SetNumber(assetID, info.get(assetID) - amount + df, decimals)
 
@@ -627,6 +642,10 @@ function ExecuteDeallocation(){
     AddRecord("deallocate", da, dt)
 
     SetError("execute deallocation success")
+}
+
+function CanvertAssetToShares(num){
+    return num
 }
 
 function UpdateOraclePrice(id){
