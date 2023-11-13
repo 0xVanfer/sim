@@ -204,6 +204,10 @@ function CalcSwap(info) {
     let sif0 = st == 0 ? info.get("sif0") : info.get("sif1");
     let sof1 = st == 0 ? info.get("sof1") : info.get("sof0");
 
+    // alrLowerBound
+    let alb0 = st == 0 ? info.get("alb0") : info.get("alb1");
+    let alb1 = st == 0 ? info.get("alb1") : info.get("alb0");
+
     // pa
     let pa0 = st == 0 ? info.get("pa0") : info.get("pa1");
 
@@ -294,6 +298,12 @@ function CalcSwap(info) {
     swapRes.set("alras0", alras0);
     swapRes.set("alras1", alras1);
 
+    if (alras0 < alb0 || alras1 < alb1 || !(realOut > 0)) {
+        document.getElementById('executeSwap').classList.add('grayed-out');
+    } else { 
+        document.getElementById('executeSwap').classList.remove('grayed-out');
+    }
+
     return swapRes;
 }
 
@@ -335,7 +345,8 @@ function CalcAllocate(info) {
     if (fee > aa) fee = aa;
 
     allocateRes.set("af", fee);
-    allocateRes.set("afr", aa == 0 ? 0 : fee / aa);
+    let allocationFeeRate = aa == 0 ? 0 : fee / aa
+    allocateRes.set("afr", allocationFeeRate);
 
     let front = info.get("affr");
     let deviation = fee == 0 ? 0 : front / fee - 1
@@ -345,6 +356,11 @@ function CalcAllocate(info) {
     let alraa = (a0 + aa) / (l0 + aa)
     allocateRes.set("alraa", alraa);
 
+    if (allocationFeeRate == 1 || aa == 0) {
+        document.getElementById('executeAllocate').classList.add('grayed-out');
+    } else { 
+        document.getElementById('executeAllocate').classList.remove('grayed-out');
+    }
    
     return allocateRes;
 }
@@ -395,7 +411,11 @@ function CalcDeallocate(info) {
     let us0 = dt == 0 ? info.get("us0") : info.get("us1");
     let ts0 = dt == 0 ? info.get("ts0") : info.get("ts1");
 
-    if (ts0 == 0 || l0 == 0) return deallocateRes;
+    if (ts0 == 0 || l0 == 0) {
+        document.getElementById('executeDeallocate').classList.add('grayed-out');
+        return deallocateRes;
+    }
+
     // user shares value = share price * user shares
     let sharePrice = l0 / ts0
     let usv0 = sharePrice * us0
@@ -413,7 +433,10 @@ function CalcDeallocate(info) {
     deallocateRes.set("earn", earn);
     deallocateRes.set("amount", amount);
 
-    if (amount == 0 || a0 == 0 || a1 == 0) return deallocateRes;
+    if (amount == 0 || a0 == 0 || a1 == 0) {
+        document.getElementById('executeDeallocate').classList.add('grayed-out');
+        return deallocateRes;
+    }
 
     // normal part
     let np = amount;
@@ -452,6 +475,12 @@ function CalcDeallocate(info) {
     // alr after deallocation
     let alrad = (a0 - amount + fee) / (l0 - amount)
     deallocateRes.set("alrad", alrad);
+
+    if ((fee == amount && fee != 0) || amount > l0/2 || amount > a0/2 || da >= ua0) {
+        document.getElementById('executeDeallocate').classList.add('grayed-out');
+    } else {
+        document.getElementById('executeDeallocate').classList.remove('grayed-out');
+    }
    
     return deallocateRes;
 }
@@ -617,13 +646,14 @@ function SetElements(info, decimals, numberIDs, percentageIDs){
         let id = percentageIDs[j]
         SetPercentage(id, info.get(id), decimals)
     }
+    SetError("calc " + info.get("mapName") + " succeed. Failed in afterward operation.")
 }
 
 function CalcHome() {
     // Get all the elements.
     let info = GetParams();
     let decimals = info.get("decimals");
-    SetElements(info, decimals,["l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", "po", "po0", "po1", "pa", "pa0", "pa1"], [])
+    SetElements(info, decimals,["l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", "po", "po0", "po1", "pa", "pa0", "pa1", "ras0", "ras1"], [])
 
     // Calc allocate.
     let allocateRes = CalcAllocate(info)
