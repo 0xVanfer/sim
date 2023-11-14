@@ -474,7 +474,7 @@ function CalcDeallocate(info) {
     let alrad = (a0 - amount + fee) / (l0 - amount)
     deallocateRes.set("alrad", alrad);
 
-    let shouldGrey = (fee == amount && fee != 0) || amount > l0/2 || amount > a0/2 || da >= ua0
+    let shouldGrey = (fee == amount && fee != 0) || amount > l0/2 || amount > a0/2 || da > ua0
     GreyButton("executeDeallocate", shouldGrey)
    
     return deallocateRes;
