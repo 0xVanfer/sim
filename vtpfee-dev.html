@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style/column.css" />
+        <link rel="stylesheet" type="text/css" href="style/header.css" />
+        <link rel="stylesheet" type="text/css" href="style/param.css" />
+        <link rel="stylesheet" type="text/css" href="style/button.css" />
+        <link rel="stylesheet" type="text/css" href="style/tip.css" />
+        <script src="./src/common.js"></script>
+        <script src="./src/calcHome-dev.js"></script>
+        <title>Calc</title>
+    </head>
+    <body>
+        <div class="header">Staple Simulation</div>
+        <div class="topnav">
+            <a href="./index.html" target="_self">Home</a>
+            <a href="./vtpfee.html" target="_self">Vtp-Fees</a>
+            <a href="./apr.html" target="_self">Apr</a>
+            <a href="./incentives.html" target="_self">Incentives</a>
+        </div>
+
+        <!-- Vtp Params -->
+        <div class="column vtp">
+            <div class="topic">
+                Vtp Param 
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        <li>n: The larger the value of 'n,' the more sensitive 'ralr' is to deviations of oracle price and market price.</li>
+                        <li>rrs: Reasonable Ralr Shift.</li>
+                        <li>p: Threshold for heavy punishments (or rewards).</li>
+                        <br>
+                        <li>ralr: Relative Asset-Liability Ratio</li>
+                        <li>Po: Price by Oracle, the quotient of the oracle's price.</li>
+                        <li>Pa: Price Adjusted by ralr from Po.</li>
+                    </div>
+                </span>
+            </div>
+            
+            <form action="" oninput="CalcHome()">
+                <table>
+                    <tr>
+                        <td>n</td>
+                        <td>=</td>
+                        <td class="params" id="n" contenteditable>30</td>
+                    </tr>
+                    <tr>
+                        <td>rrs</td>
+                        <td>=</td>
+                        <td class="params" id="rrs" contenteditable>0.1</td>
+                    </tr>
+                    <tr>
+                        <td>p</td>
+                        <td>=</td>
+                        <td class="params" id="p" contenteditable>0.12</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>ralr</td>
+                        <td>=</td>
+                        <td id="ralr">1</td>
+                    </tr>
+                    <tr>
+                        <td>Po</td>
+                        <td>=</td>
+                        <td id="po">1</td>
+                    </tr>
+                    <tr>
+                        <td>Pa</td>
+                        <td>=</td>
+                        <td id="pa">1</td>
+                    </tr>
+                </table>
+            </form>
+
+            <hr>
+
+            <div class="topic">
+                Page Param
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">The 'decimals' parameter here applies to the entire page and is used to determine the decimal precision of the output numerical values.</div>
+                </span>
+            </div>
+            <form action="" oninput="CalcHome()">
+                <table>
+                    <tr>
+                        <td>decimal</td>
+                        <td>=</td>
+                        <td class="params" id="decimals" contenteditable>6</td>
+                    </tr>
+                </table>
+            </form>
+
+            <hr></hr>
+
+            <div>
+                <button class="data-button" onclick="ResetData()">Reset Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Reset all input parameters to their default values.</div>
+                </span>
+            </div>
+            <br>
+            <div>
+                <button class="data-button" onclick="ExportData()">Export Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Output the parameters on the page as a string for the purpose of reproducing them on other pages or devices.</div>
+                </span>
+            </div>
+            <br>
+            <div>
+                <button class="data-button" onclick="ImportData()">Import Data</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Paste the correct structure in the input box below to reproduce the conditions of other vtps.</div>
+                </span>
+            </div>
+            <br>
+            <div>
+                <div>
+                    Data to Import: <div class="params" id="data2import" contenteditable></div>
+                </div>
+                <br>  
+                <div>
+                    Exported Data: 
+                    <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Click the text three times to select it all.</div>
+                </span>
+                    <div id="exportedData"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VtpToken 0 -->
+        <div class="column vtpToken">
+            <div class="topic">
+                Token 0
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        <li>wallet balance: User token balance in the wallet.(metamask etc.)</li>
+                        <li>lp balance: User lp balance in the wallet.</li>
+                        <hr>
+                        <li>asset: The amount of asset of this token within this vtp.</li>
+                        <li>allocated: The amount allocated by the liquidity providers.</li>
+                        <li>feeCollected: Unclaimed fee, collected for the users.</li>
+                        <li>liability: = allocated + feeCollected. The vtp's liability of all the users.</li>
+                        <li>alr: = asset / liability. Asset-Liability Ratio.</li>
+                        <hr>
+                        <li>oracle price: Token price read from the oracle.</li>
+                        <li>historyFee: All the fees collected for the users in history.</li>
+                        <li>protocolFee: Fee collected for the protocol.</li>
+                        <hr>
+                        <li>swapInFee: Fee ratio during the swapIn process.</li>
+                        <li>swapOutFee: Fee ratio during the swapOut process.</li>
+                        <li>protocolFeeRate: The ratio that the protocol will take from all the swap fees.(not including allocation and deallocation fee.)</li>
+                        <li>alrLowerBound: The alr should never be lower than this param. A swap that will lead the alr to be lower than alrLowerBound will be reverted.</li>
+                        <hr>
+                        When calculating deallocation, we need the following params.
+                        <li>user allocation: User's allocation in this vtpToken(one side of the vtp).</li>
+                        <li>user shares: The shares of this user within this vtpToken.</li>
+                        <li>all shares: All the shares within this vtpToken.</li>
+                        <hr>
+                        The calculated results, representing the token's status.
+                        <li>ralr0: Relative Asset-Liability Ratio of this token. = alr of this token / alr of another token.</li>
+                        <li>Po0: Price by Oracle. = oracle price of this token / oracle price of another token.</li>
+                        <li>Pa0: Price Adjusted by ralr0 from Po0.</li>
+                        <li>ras0: Reasonable amount shift. Calculated based on mainly rrs (and status of the vtp).</li>
+                    </div>
+                </span>
+            </div>
+            <form action="" oninput="CalcHome()">
+                <table>
+                    <tr>
+                        <td>wallet balance</td>
+                        <td>=</td>
+                        <td class="params" id="uwb0" contenteditable>50000</td>
+                    </tr>
+                    <tr>
+                        <td>lp balance</td>
+                        <td>=</td>
+                        <td class="params" id="uwlpb0" contenteditable>10000</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>asset</td>
+                        <td>=</td>
+                        <td class="params" id="a0" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>allocated</td>
+                        <td>=</td>
+                        <td class="params" id="aed0" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>feeCollected</td>
+                        <td>=</td>
+                        <td class="params" id="fc0" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>liability</td>
+                        <td>=</td>
+                        <td id="l0">10000</td>
+                    </tr>
+                    <tr>
+                        <td>alr</td>
+                        <td>=</td>
+                        <td id="alr0">1</td>
+                    </tr>
+                    <tr>
+                        <td>oracle price</td>
+                        <td>=</td>
+                        <td class="params" id="op0" contenteditable oninput="UpdateOraclePrice('op0')">1</td>
+                    </tr>
+                    <tr>
+                        <td>historyFee</td>
+                        <td>=</td>
+                        <td id="hfc0">0</td>
+                    </tr>
+                    <tr>
+                        <td>protocolFee</td>
+                        <td>=</td>
+                        <td id="pfc0">0</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>swapInFee</td>
+                        <td>=</td>
+                        <td class="params" id="sif0" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>swapOutFee</td>
+                        <td>=</td>
+                        <td class="params" id="sof0" contenteditable>0.0001</td>
+                    </tr>
+                     
+                    <tr>
+                        <td>protocolFeeRate</td>
+                        <td>=</td>
+                        <td class="params" id="pfr0" contenteditable>0.1</td>
+                    </tr>
+                    <tr>
+                        <td>alrLowerBound</td>
+                        <td>=</td>
+                        <td class="params" id="alb0" contenteditable>0.88</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>user allocation</td>
+                        <td>=</td>
+                        <td class="params" id="ua0" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>userShares</td>
+                        <td>=</td>
+                        <td class="params" id="us0" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>totalShares</td>
+                        <td>=</td>
+                        <td class="params" id="ts0" contenteditable>10000</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>ralr0</td>
+                        <td>=</td>
+                        <td id="ralr0">1</td>
+                    </tr>
+                    <tr>
+                        <td>Po0</td>
+                        <td>=</td>
+                        <td id="po0">1</td>
+                    </tr>
+                    <tr>
+                        <td>Pa0</td>
+                        <td>=</td>
+                        <td id="pa0">1</td>
+                    </tr>
+                    <tr>
+                        <td>ras0</td>
+                        <td>=</td>
+                        <td id="ras0">0</td>
+                    </tr>
+                    <tr>
+                        <td>crazy0</td>
+                        <td>=</td>
+                        <td id="crazy0">0</td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <!-- VtpToken 1 -->
+        <div class="column vtpToken">
+            <div class="topic">Token 1</div>
+            <form action="" oninput="CalcHome()">
+                <table>
+                    <tr>
+                        <td>wallet balance</td>
+                        <td>=</td>
+                        <td class="params" id="uwb1" contenteditable>50000</td>
+                    </tr>
+                    <tr>
+                        <td>lp balance</td>
+                        <td>=</td>
+                        <td class="params" id="uwlpb1" contenteditable>10000</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>asset</td>
+                        <td>=</td>
+                        <td class="params" id="a1" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>allocated</td>
+                        <td>=</td>
+                        <td class="params" id="aed1" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>feeCollected</td>
+                        <td>=</td>
+                        <td class="params" id="fc1" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>liability</td>
+                        <td>=</td>
+                        <td id="l1">10000</td>
+                    </tr>
+                    <tr>
+                        <td>alr</td>
+                        <td>=</td>
+                        <td id="alr1">1</td>
+                    </tr>
+                    <tr>
+                        <td>oracle price</td>
+                        <td>=</td>
+                        <td class="params" id="op1" contenteditable  oninput="UpdateOraclePrice('op1')">1</td>
+                    </tr>
+                    <tr>
+                        <td>historyFee</td>
+                        <td>=</td>
+                        <td id="hfc1">0</td>
+                    </tr>
+                    <tr>
+                        <td>protocolFee</td>
+                        <td>=</td>
+                        <td id="pfc1">0</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>swapInFee</td>
+                        <td>=</td>
+                        <td class="params" id="sif1" contenteditable>0</td>
+                    </tr>
+                    <tr>
+                        <td>swapOutFee</td>
+                        <td>=</td>
+                        <td class="params" id="sof1" contenteditable>0.0001</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>protocolFeeRate</td>
+                        <td>=</td>
+                        <td class="params" id="pfr1" contenteditable>0.1</td>
+                    </tr>
+                    <tr>
+                        <td>alrLowerBound</td>
+                        <td>=</td>
+                        <td class="params" id="alb1" contenteditable>0.88</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>user allocation</td>
+                        <td>=</td>
+                        <td class="params" id="ua1" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>userShares</td>
+                        <td>=</td>
+                        <td class="params" id="us1" contenteditable>10000</td>
+                    </tr>
+                    <tr>
+                        <td>totalShares</td>
+                        <td>=</td>
+                        <td class="params" id="ts1" contenteditable>10000</td>
+                    </tr>
+                    <td>=====</td>
+                    <tr>
+                        <td>ralr1</td>
+                        <td>=</td>
+                        <td id="ralr1">1</td>
+                    </tr>
+                    <tr>
+                        <td>Po1</td>
+                        <td>=</td>
+                        <td id="po1">1</td>
+                    </tr>
+                    <tr>
+                        <td>Pa1</td>
+                        <td>=</td>
+                        <td id="pa1">1</td>
+                    </tr>
+                    <tr>
+                        <td>ras1</td>
+                        <td>=</td>
+                        <td id="ras1">0</td>
+                    </tr>
+                    <tr>
+                        <td>crazy1</td>
+                        <td>=</td>
+                        <td id="crazy1">0</td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        <!-- Swap -->
+        <div class="column action">
+            <div>
+                <div class="topic">
+                    Swap
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            discount: The swap fee discount of this user. 
+                            <br>
+                            MUST be within 0~1. Use 0.1 for 10%. 
+                        </div>
+                    </span>
+                </div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>amount</td>
+                            <td>=</td>
+                            <td class="params" id="sa" contenteditable>10</td>
+                        </tr>
+                        <tr>
+                            <td>direction</td>
+                            <td>=</td>
+                            <td>
+                                <select id="st">
+                                    <option value="0">token0 => token1</option>
+                                    <option value="1">token1 => token0</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>discount</td>
+                            <td>=</td>
+                            <td class="params" id="discount" contenteditable>0</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">
+                    Result
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            <li>feeIn: Fee to be collected for "swapIn".</li> 
+                            <li>feeOut: Fee to be collected for "swapOut".</li> 
+                            <li>realOut: The amount user will actually get.</li> 
+                            <li>impact: = (value of tokenOut) / (value of tokenIn) - 1</li>
+                        </div>
+                    </span>
+                </div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>feeIn</td>
+                            <td>=</td>
+                            <td id="sifr">-</td>
+                        </tr>
+                        <tr>
+                            <td>feeOut</td>
+                            <td>=</td>
+                            <td id="sofr">-</td>
+                        </tr>
+                        <tr>
+                            <td>punishments</td>
+                            <td>=</td>
+                            <td id="spr">-</td>
+                        </tr>
+                        <tr>
+                            <td>rewards</td>
+                            <td>=</td>
+                            <td id="srr">-</td>
+                        </tr>
+                        <tr>
+                            <td>realOut</td>
+                            <td>=</td>
+                            <td id="sro">-</td>
+                        </tr>
+                        <tr>
+                            <td>impact</td>
+                            <td>=</td>
+                            <td id="spi">-</td>
+                        </tr>
+                        <td>=====</td>
+                        <tr>
+                            <td>alr0 after swap</td>
+                            <td>=</td>
+                            <td id="alras0">-</td>
+                        </tr>
+                        <tr>
+                            <td>alr1 after swap</td>
+                            <td>=</td>
+                            <td id="alras1">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="srofr" contenteditable></td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="srode">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeSwap" ondblclick="ExecuteSwap()">Execute This Swap</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <!-- Allocate -->
+        <div class="column action">
+            <div>
+                <div class="topic">Allocate</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>amount</td>
+                            <td>=</td>
+                            <td class="params" id="aa" contenteditable></td>
+                        </tr>
+                        <tr>
+                            <td>token</td>
+                            <td>=</td>
+                            <td>
+                                <select id="at">
+                                    <option value="0">token0</option>
+                                    <option value="1">token1</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>=</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Result</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>fee</td>
+                            <td>=</td>
+                            <td id="af">-</td>
+                        </tr>
+                        <tr>
+                            <td>fee rate</td>
+                            <td>=</td>
+                            <td id="afr">-</td>
+                        </tr>
+                        <td>=====</td>
+                        <tr>
+                            <td>alr after allocate</td>
+                            <td>=</td>
+                            <td id="alraa">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="affr" contenteditable></td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="afde">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeAllocate" ondblclick="ExecuteAllocation()">Execute This Allocation</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <!-- Deallocate -->
+        <div class="column action">
+            <div>
+                <div class="topic">
+                    Deallocate
+                    <span class="tooltip">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            Will claim the fees collected along with deallocation.
+                            <br>
+                            Deallocate 0 to claim the fee.
+                        </div>
+                    </span>
+                </div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>amount</td>
+                            <td>=</td>
+                            <td class="params" id="da" contenteditable></td>
+                        </tr>
+                        <tr>
+                            <td>token</td>
+                            <td>=</td>
+                            <td>
+                                <select id="dt">
+                                    <option value="0">token0</option>
+                                    <option value="1">token1</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>=</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Result</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>rewards to claim</td>
+                            <td>=</td>
+                            <td id="earn">-</td>
+                        </tr>
+                        <tr>
+                            <td>fee</td>
+                            <td>=</td>
+                            <td id="df">-</td>
+                        </tr>
+                        <tr>
+                            <td>fee rate</td>
+                            <td>=</td>
+                            <td id="dfr">-</td>
+                        </tr>
+                        <td>=====</td>
+                        <tr>
+                            <td>alr after deallocate</td>
+                            <td>=</td>
+                            <td id="alrad">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <div class="topic">Compare with Frontend</div>
+                <form action="" oninput="CalcHome()">
+                    <table>
+                        <tr>
+                            <td>front result</td>
+                            <td>=</td>
+                            <td class="params" id="dffr" contenteditable></td>
+                        </tr>
+                        <tr>
+                            <td>deviation</td>
+                            <td>=</td>
+                            <td id="dfde">-</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr></hr>
+
+            <div>
+                <button class="execute-button" id="executeDeallocate" ondblclick="ExecuteDeallocation()">Execute This Deallocation</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        DOUBLE-CLICK on this button to execute the operation, and the status of the params will be updated.
+                    </div>
+                </span>
+            </div>
+        </div>
+
+        <div class="column error">
+            <div>
+                <div class="topic">
+                    Error
+                    <span class="tooltip short">
+                        <div class="question-mark">ℹ️</div>
+                        <div class="tooltip-text">
+                            Show the result.
+                        </div>
+                    </span>
+                </div>
+                <form action="">
+                    <table>
+                        <tr>
+                            <td id="error">failed</td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+
+            <hr>
+
+            <div class="topic">
+                Executions
+                <span class="tooltip short">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">
+                        Record operations.
+                    </div>
+                </span>
+            </div>
+            <div id="executionHistory"></div>
+        </div>
+
+        <script>
+            CalcHome();
+        </script>
+    </body>
+</html>
