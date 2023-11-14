@@ -145,9 +145,9 @@ function GetParams() {
     let pa1 = 1 / pa0
 
     // ras
-    // = RRS / (1 / L0 + Pa0 * (1 - RRS / 2n) / L1)
-    let ras0 = rrs / (1 / l0 + pa0 * (1 - rrs / 2 / n) / l1)
-    let ras1 = rrs / (1 / l1 + pa1 * (1 - rrs / 2 / n) / l0)
+    // = RRS / (1 / L0 + Po0 * (1 - RRS / 2n) / L1)
+    let ras0 = rrs / (1 / l0 + po0 * (1 - rrs / 2 / n) / l1)
+    let ras1 = rrs / (1 / l1 + po1 * (1 - rrs / 2 / n) / l0)
 
     info.set("l0", l0);
     info.set("l1", l1);
@@ -455,6 +455,7 @@ function CalcDeallocate(info) {
     if (l0 > a0 && ras1 + a1 > l1){
         // D * 1/n * (RAS1 + A1 - L1) * (L0 - A0) / L0 / (A0 - D) / pa0
         npf = np / n * (ras1 + a1 - l1) * (l0 - a0) / l0 / (a0 - np) / pa0
+    // }else if (a0 > l0){
     }else if (a0 > l0 && a0 < l0 + ras0){
         // D * 1/n * (RAS0 + A0 - L0) * (A0 - L0) / A0 / (L0 - D)
         npf = np / n * (ras0 + a0 - l0) * (a0 - l0) / a0 / (l0 - np)
