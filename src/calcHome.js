@@ -146,8 +146,8 @@ function GetParams() {
 
     // ras
     // = RRS / (1 / L0 + Pa0 * (1 - RRS / 2n) / L1)
-    let ras0 = rrs / (1 / l0 + pa0 * (1 - rrs / 2 / n) / l1)
-    let ras1 = rrs / (1 / l1 + pa1 * (1 - rrs / 2 / n) / l0)
+    let ras0 = rrs / (1 / aed0 + po0 * (1 - rrs / 2 / n) / aed1)
+    let ras1 = rrs / (1 / aed1 + po1 * (1 - rrs / 2 / n) / aed0)
 
     info.set("l0", l0);
     info.set("l1", l1);
