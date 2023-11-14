@@ -106,6 +106,7 @@ function GetParams() {
     // n, rrs
     let n = info.get("n");
     let rrs = info.get("rrs");
+    let p = info.get("p");
 
     // asset
     let a0 = info.get("a0");
@@ -118,6 +119,10 @@ function GetParams() {
     // fee collected
     let fc0 = info.get("fc0");
     let fc1 = info.get("fc1");
+
+    // fee collected
+    let alb0 = info.get("alb0");
+    let alb1 = info.get("alb1");
 
     // liability
     let l0 = aed0 + fc0;
@@ -146,8 +151,14 @@ function GetParams() {
 
     // ras
     // = RRS / (1 / L0 + Pa0 * (1 - RRS / 2n) / L1)
-    let ras0 = rrs / (1 / aed0 + po0 * (1 - rrs / 2 / n) / aed1)
-    let ras1 = rrs / (1 / aed1 + po1 * (1 - rrs / 2 / n) / aed0)
+    let ras0 = rrs / (1 / l0 + po0 * (1 - rrs / 2 / n) / l1)
+    let ras1 = rrs / (1 / l1 + po1 * (1 - rrs / 2 / n) / l0)
+
+    // min(l0 * p * 2, l1 * (alr1 - alb1) * pa1)
+    let crazy0 = l1 * (alr1 - alb1) * pa1
+    if (crazy0 > l0 * p * 2) crazy0 = l0 * p * 2;
+    let crazy1 = l0 * (alr0 - alb0) * pa0
+    if (crazy1 > l1 * p * 2) crazy1 = l1 * p * 2;
 
     info.set("l0", l0);
     info.set("l1", l1);
@@ -169,6 +180,9 @@ function GetParams() {
 
     info.set("ras0", ras0);
     info.set("ras1", ras1);
+
+    info.set("crazy0", crazy0);
+    info.set("crazy1", crazy1);
 
     return info;
 }
@@ -219,14 +233,6 @@ function CalcSwap(info) {
 
     // tx fee
     let feeIn = sa * sif0 * (1 - discount)
-    let amount = sa - feeIn
-
-    if (a0 + amount > l0 + ras0){
-        feeIn += amount * (a0 + amount - l0) / (a0 + amount) / n
-    }else if (l0 > a0 + ras0 + amount){
-        feeIn += amount * (l0 - a0) / a0 / n
-    }
-
     let realIn = sa - feeIn
 
     // ========== swap
@@ -242,14 +248,6 @@ function CalcSwap(info) {
     // ========== fee out
 
     let feeOut = swapGet * sof1 * (1 - discount)
-    let aout = swapGet - feeOut
-
-    if (a1 + ras1 < l1 + aout){
-        feeOut += aout * (l1 + aout - a1) / l1 / n
-    }else if (a1 > l1 + ras1 + aout){
-        feeOut += aout * (a1 - l1) / l1 / n
-    }
-
     let estiOut = swapGet - feeOut
 
     // ========== punish / reward
@@ -330,17 +328,29 @@ function CalcAllocate(info) {
     let ras0 = at == 0 ? info.get("ras0") : info.get("ras1");
     let ras1 = at == 0 ? info.get("ras1") : info.get("ras0");
 
+    // crazy
+    let crazy0 = at == 0 ? info.get("crazy0") : info.get("crazy1");
+    let crazy1 = at == 0 ? info.get("crazy1") : info.get("crazy0");
+
     // pa
     let pa0 =  at == 0 ? info.get("pa0") : info.get("pa1");
 
 
     let fee = 0;
-    if (l0 > a0 && a0 + ras0 > l0){
-        // D * 1/n * (RAS0 - (L0 - A0)) * RAS0 / (L0 - RAS0) / (L0 + D)
-        fee = aa / n * (ras0 + a0 - l0) * ras0 / (l0 - ras0) / (l0 + aa)
-    }else if (a0 > l0 && ras1 + a1 > l1){
-        // D * 1/n * (RAS1 - (L1 - A1)) * RAS0 / L0 / (L0 + D + RAS0) / pa0
-        fee = aa / n * (ras1 + a1 - l1) * ras0 / l0 / (l0 + aa + ras0) / pa0
+    if (l0 > a0){
+        if (a0 + ras0 > l0){
+            // D * 1/n * (RAS0 - (L0 - A0)) * RAS0 / (L0 - RAS0) / (L0 + D)
+            fee = aa / n * (ras0 + a0 - l0) * ras0 / (l0 - ras0) / (l0 + aa)
+        } else {
+            fee = aa / n * (crazy0 + a0 - l0) * crazy0 / (l0 - crazy0) / (l0 + aa)
+        }
+    } else if (a0 > l0 && ras1 + a1 > l1){
+        if (ras1 + a1 > l1){
+            // D * 1/n * (RAS1 - (L1 - A1)) * RAS0 / L0 / (L0 + D + RAS0) / pa0
+            fee = aa / n * (ras1 + a1 - l1) * ras0 / l0 / (l0 + aa + ras0) / pa0
+        }else{
+            fee = aa / n * (crazy1 + a1 - l1) * crazy0 / l0 / (l0 + aa + crazy0) / pa0
+        }
     }
 
     if (fee > aa) fee = aa;
@@ -398,6 +408,10 @@ function CalcDeallocate(info) {
     let ras0 = dt == 0 ? info.get("ras0") : info.get("ras1");
     let ras1 = dt == 0 ? info.get("ras1") : info.get("ras0");
 
+    // crazy
+    let crazy0 = at == 0 ? info.get("crazy0") : info.get("crazy1");
+    let crazy1 = at == 0 ? info.get("crazy1") : info.get("crazy0");
+
     // pa
     let pa0 = dt == 0 ? info.get("pa0") : info.get("pa1");
 
@@ -452,12 +466,20 @@ function CalcDeallocate(info) {
 
     // normal part fee
     let npf = 0;
-    if (l0 > a0 && ras1 + a1 > l1){
-        // D * 1/n * (RAS1 + A1 - L1) * (L0 - A0) / L0 / (A0 - D) / pa0
-        npf = np / n * (ras1 + a1 - l1) * (l0 - a0) / l0 / (a0 - np) / pa0
-    }else if (a0 > l0 && a0 < l0 + ras0){
-        // D * 1/n * (RAS0 + A0 - L0) * (A0 - L0) / A0 / (L0 - D)
-        npf = np / n * (ras0 + a0 - l0) * (a0 - l0) / a0 / (l0 - np)
+    if (l0 > a0){
+        if (ras1 + a1 > l1){
+            // D * 1/n * (RAS1 + A1 - L1) * (L0 - A0) / L0 / (A0 - D) / pa0
+            npf = np / n * (ras1 + a1 - l1) * (l0 - a0) / l0 / (a0 - np) / pa0
+        }else{
+            npf = np / n * (crazy1 + a1 - l1) * (l0 - a0) / l0 / (a0 - np) / pa0
+        }
+    }else if (a0 > l0){
+        if (a0 < l0 + ras0){
+            // D * 1/n * (RAS0 + A0 - L0) * (A0 - L0) / A0 / (L0 - D)
+            npf = np / n * (ras0 + a0 - l0) * (a0 - l0) / a0 / (l0 - np)
+        }else{
+            npf = np / n * (crazy0 + a0 - l0) * (a0 - l0) / a0 / (l0 - np)
+        }
     }
     
     let fee = ppf + npf;
@@ -672,7 +694,11 @@ function CalcHome() {
     // Get all the elements.
     let info = GetParams();
     let decimals = info.get("decimals");
-    SetElements(info, decimals,["l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", "po", "po0", "po1", "pa", "pa0", "pa1", "ras0", "ras1"], [])
+    SetElements(info, decimals,[
+        "l0", "l1", "alr0", "alr1", "ralr", "ralr0", "ralr1", 
+        "po", "po0", "po1", "pa", "pa0", "pa1", 
+        "ras0", "ras1", "crazy0", "crazy1",
+    ], [])
 
     // Calc allocate.
     let allocateRes = CalcAllocate(info)
