@@ -40,22 +40,30 @@ function setSwapAndDo(alloc, token) {
     ExecuteSwap();
 }
 
-function verifyTotalValue() {
+function verifyTotalValue(origin) {
     debugger
-    // uwb0 is token a balance
-    // uwb1 is token b balance
-    let uwb0 = parseFloat(document.getElementById("uwb0").innerText);
-    let uwb1 = parseFloat(document.getElementById("uwb1").innerText);
-    let lp0 = parseFloat(document.getElementById("uwlpb0").innerText);
-    let lp1 = parseFloat(document.getElementById("uwlpb1").innerText);
-    let total = uwb0 + uwb1 + lp0 + lp1;
+   
+    let total = readTotalValue()
     // Require token balance not increase.
     document.getElementById("current_sum").innerText = total
-    if (total > 120000) {
+    if (total > origin) {
         alert("Total value is too high!");
         return false;
     }
     return true
+}
+
+function readTotalValue(){
+    let uwb0 = ReadPositiveNumber("uwb0");
+    let uwb1 = ReadPositiveNumber("uwb1");
+    let lp0 = ReadPositiveNumber("uwlpb0");
+    let lp1 = ReadPositiveNumber("uwlpb1");
+    let op0 = ReadPositiveNumber("op0");
+    let op1 = ReadPositiveNumber("op1");
+    // lp balance should not always be 1:1 to underlying price.
+    // but in this page, it is.
+    let total = (uwb0 + lp0) * op0 + (uwb1 + lp1) * op1;
+    return total
 }
 
 function randomAllocate(token) {
@@ -109,15 +117,29 @@ function RandomAction() {
 }
 
 function RunRound() {
-    // Reset first
-    ResetData()
-    // Each Round takes 10 ops
-    for (let i = 0; i < 20; i++) {
-        RandomAction();
-        if(!verifyTotalValue()) {
-            alert("Quit")
-            break;
+    let times = 10
+
+    // The starting status.
+    // let startingStatus = INIT_DATA_STR
+    let startingStatus = getDataStrToExport()
+
+    for (let round = 0; round < times; round ++){
+        // Reset first
+        ImportData(startingStatus)
+        // The original wallet value of user.
+        let origin = readTotalValue()
+        // Each Round takes 10 ops
+        for (let i = 0; i < 20; i++) {
+            RandomAction();
+            if(!verifyTotalValue(origin)) {
+                alert("Quit")
+                SetError("ARBITRAGE!!!")
+                return;
+            }
         }
     }
 
+    ImportData(startingStatus)
+
+    SetError(Timestamp2Time(Date.now()) + "<br>run " + times + " rounds of random operations")
 }

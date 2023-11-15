@@ -718,16 +718,21 @@ function CalcHome() {
     SetError("success")
 }
 
-function ExportData(){
+function getDataStrToExport(){
     let info = ReadBaseElements();
     let obj= Object.create(null);
     for (let[k,v] of info) {
         obj[k] = v;
         if (obj[k] == null) obj[k] = 0;
     }
+    return JSON.stringify(obj)
+}
 
-    SetString("exportedData", JSON.stringify(obj))
-    SetString("exportedDataSelection", JSON.stringify(obj))
+function ExportData(){
+    let strData = getDataStrToExport()
+
+    SetString("exportedData", strData)
+    SetString("exportedDataSelection", strData)
     // Auto select generated text
     document.getElementById("exportedDataSelection").focus();
     document.getElementById("exportedDataSelection").select();

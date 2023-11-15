@@ -43,8 +43,14 @@ function SetError(errorStr, errorID = "error"){
 function Timestamp2Time(timestamp){
     SetError("process timestamp error")
     if (!(timestamp > 0)) timestamp = 0;
+    let date
 
-    date = new Date(timestamp * 1000)
+    if (timestamp > 2e10){
+        date = new Date(timestamp)
+    }else{
+        date = new Date(timestamp * 1000)
+    }
+
 
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
