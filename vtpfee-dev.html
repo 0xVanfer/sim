@@ -12,6 +12,7 @@
         <link rel="stylesheet" type="text/css" href="style/export.css" />
         <script src="./src/common.js"></script>
         <script src="./src/calcHome-dev.js"></script>
+        <script src="./src/random.js"></script>
         <title>Calc</title>
     </head>
     <body>
@@ -106,6 +107,14 @@
                 <span class="tooltip">
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">Output the parameters on the page as a string for the purpose of reproducing them on other pages or devices.</div>
+                </span>
+            </div>
+            <br>
+            <div>
+                <button class="data-button" onclick="RunRound()">Fuzz test</button>
+                <span class="tooltip">
+                    <div class="question-mark">ℹ️</div>
+                    <div class="tooltip-text">Run 10 rounds of ops</div>
                 </span>
             </div>
             <br>
