@@ -42,14 +42,15 @@ function setSwapAndDo(alloc, token) {
 
 function verifyTotalValue() {
     debugger
-    // ulb0 is token a balance
-    // ulb1 is token b balance
-    let ulb0 = parseFloat(document.getElementById("uwb0").innerText);
-    let ulb1 = parseFloat(document.getElementById("uwb1").innerText);
+    // uwb0 is token a balance
+    // uwb1 is token b balance
+    let uwb0 = parseFloat(document.getElementById("uwb0").innerText);
+    let uwb1 = parseFloat(document.getElementById("uwb1").innerText);
     let lp0 = parseFloat(document.getElementById("uwlpb0").innerText);
     let lp1 = parseFloat(document.getElementById("uwlpb1").innerText);
-    let total = ulb0 + ulb1 + lp0 + lp1;
+    let total = uwb0 + uwb1 + lp0 + lp1;
     // Require token balance not increase.
+    document.getElementById("current_sum").innerText = total
     if (total > 120000) {
         alert("Total value is too high!");
         return false;
@@ -72,7 +73,7 @@ function randomAllocate(token) {
 
 function randomDeAllocate(token) {
     // Check Possible DeAlloc amount
-    let currentAlloc = parseFloat(document.getElementById("aed" + token).innerText);
+    let currentAlloc = parseFloat(document.getElementById("ua" + token).innerText);
     let currentLp = parseFloat(document.getElementById("uwlpb" + token).innerText);
     let maxDeAlloc = currentAlloc < currentLp ? currentAlloc : currentLp;
     if (maxDeAlloc > 0) {
