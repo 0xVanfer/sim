@@ -1,0 +1,11 @@
+#exportedData {
+    height: 80px;
+    overflow-y: scroll;
+    word-break: break-all;
+}
+
+#exportedDataSelection {
+    max-height: 1px;
+    max-width: 1px;
+}
+

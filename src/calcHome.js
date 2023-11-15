@@ -699,6 +699,11 @@ function ExportData(){
     }
 
     SetString("exportedData", JSON.stringify(obj))
+    SetString("exportedDataSelection", JSON.stringify(obj))
+    // Auto select generated text
+    document.getElementById("exportedDataSelection").focus();
+    document.getElementById("exportedDataSelection").select();
+    document.execCommand("copy");
 
     SetError("export data success")
 }
