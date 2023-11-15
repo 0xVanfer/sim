@@ -157,7 +157,7 @@
                         <li>asset: The amount of asset of this token within this vtp.</li>
                         <li>allocated: The amount allocated by the liquidity providers.</li>
                         <li>feeCollected: Unclaimed fee, collected for the users.</li>
-                        <li>liability: = allocated + feeCollected. The vtp's liability of all the users.</li>
+                        <li>liability: = allocated + feeCollected. The vtp's liability of all users.</li>
                         <li>alr: = asset / liability. Asset-Liability Ratio.</li>
                         <hr>
                         <li>oracle price: Token price read from the oracle.</li>
@@ -171,7 +171,7 @@
                         <hr>
                         When calculating deallocation, we need the following params.
                         <li>user allocation: User's allocation in this vtpToken(one side of the vtp).</li>
-                        <li>user shares: The shares of this user within this vtpToken.</li>
+                        <li>user shares: The shares of this user within this vtpToken. Should never exceed all shares, and (user shares)/(all shares) ≈ (user allocation)/(liability).</li>
                         <li>all shares: All the shares within this vtpToken.</li>
                         <hr>
                         The calculated results, representing the token's status.
