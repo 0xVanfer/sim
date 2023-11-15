@@ -1,6 +1,6 @@
 const NUMBER_ID_TO_RECORD = [
     "decimals",// page decimals
-    "n", "rrs", "p",// vtp params
+    "n", "rrs",// vtp params
     "uwb0", "uwb1", "uwlpb0", "uwlpb1", // user wallet balance
     "a0", "a1", "aed0", "aed1", // asset, allocated, liability
     "op0", "op1",// oracle prices
@@ -18,7 +18,7 @@ const STRING_ID_TO_RECORD = ["executionHistory"]
 
 const INIT_DATA_STR = 
 `
-{"mapName":"elements","decimals":6,"n":30,"rrs":0.1,"p":0.12,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":10000,"ua1":10000,"us0":10000,"us1":10000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+{"mapName":"elements","decimals":6,"n":30,"rrs":0.12,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":4000,"ua1":4000,"us0":4000,"us1":4000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":4000,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
 `
 
 // The params set by the user.
@@ -106,7 +106,6 @@ function GetParams() {
     // n, rrs
     let n = info.get("n");
     let rrs = info.get("rrs");
-    let p = info.get("p");
 
     // asset
     let a0 = info.get("a0");
@@ -149,16 +148,25 @@ function GetParams() {
     let pa0 = po0 * Math.pow(ralr0, -1 / n);
     let pa1 = 1 / pa0
 
-    // ras
-    // = RRS / (1 / L0 + Pa0 * (1 - RRS / 2n) / L1)
-    let ras0 = rrs / (1 / l0 + po0 * (1 - rrs / 2 / n) / l1)
-    let ras1 = rrs / (1 / l1 + po1 * (1 - rrs / 2 / n) / l0)
+    
 
-    // min(l0 * p * 2, l1 * (alr1 - alb1) * pa1)
-    let crazy0 = l1 * (alr1 - alb1) * pa1
-    if (crazy0 > l0 * p * 2) crazy0 = l0 * p * 2;
-    let crazy1 = l0 * (alr0 - alb0) * pa0
-    if (crazy1 > l1 * p * 2) crazy1 = l1 * p * 2;
+    // ras
+    // = RRS / (1 / L0 + Po0 * (1 - RRS / 2n) / L1)
+    // let ras0 = rrs / (1 / l0 + po0 * (1 - rrs / 2 / n) / l1)
+    // let ras1 = rrs / (1 / l1 + po1 * (1 - rrs / 2 / n) / l0)
+
+    // rrs = (1 - 1 / (1 + rrs))
+    let ras0 = (1 - 1 / (1 + rrs)) / (1 / l0 + po0 * (1 - (1 - 1 / (1 + rrs)) / 2 / n) / l1)
+    let ras1 = (1 - 1 / (1 + rrs)) / (1 / l1 + po1 * (1 - (1 - 1 / (1 + rrs)) / 2 / n) / l0)
+
+    // min(l0 * rrs * 2, l1 * (alr1 - alb1) * pa1)
+    // let crazy0 = l1 * (alr1 - alb1) * pa1
+    // if (crazy0 > l0 * rrs * 2) crazy0 = l0 * rrs * 2;
+    // let crazy1 = l0 * (alr0 - alb0) * pa0
+    // if (crazy1 > l1 * rrs * 2) crazy1 = l1 * rrs * 2;
+
+    let crazy0 = l0 * (1 - alb0)
+    let crazy1 = l1 * (1 - alb1)
 
     info.set("l0", l0);
     info.set("l1", l1);
@@ -197,8 +205,8 @@ function CalcSwap(info) {
 
     // n, rrs, p
     let n = info.get("n");
-    let p = info.get("p");
-    let m = p+1
+    let rrs = info.get("rrs");
+    let m = rrs+1
 
     // asset, liability, alr
     let a0 = st == 0 ? info.get("a0") : info.get("a1");
@@ -210,10 +218,6 @@ function CalcSwap(info) {
     // oracle price
     let op0 = st == 0 ? info.get("op0") : info.get("op1");
     let op1 = st == 0 ? info.get("op1") : info.get("op0");
-
-    // ras
-    let ras0 = st == 0 ? info.get("ras0") : info.get("ras1");
-    let ras1 = st == 0 ? info.get("ras1") : info.get("ras0");
 
     // feeIn, feeOut
     let sif0 = st == 0 ? info.get("sif0") : info.get("sif1");
@@ -296,6 +300,7 @@ function CalcSwap(info) {
 
     swapRes.set("alras0", alras0);
     swapRes.set("alras1", alras1);
+    swapRes.set("ralras", alras0 / alras1);
 
     if (alras0 < alb0 || alras1 < alb1 || !(realOut > 0)) {
         document.getElementById('executeSwap').classList.add('grayed-out');
@@ -599,7 +604,7 @@ function ExecuteAllocation(){
 
     let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID) + af)
 
-    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(af), decimals)
+    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(af), decimals)
 
     SetNumberAdd(assetID, aa, decimals)
     SetNumberAdd(allocatedID, realAllo, decimals)
@@ -644,7 +649,7 @@ function ExecuteDeallocation(){
     let feeCollectedID = dt == 0 ? "fc0" : "fc1"
 
     SetNumberAdd(balanceID, earn, decimals)
-    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(df), decimals)
+    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(df), decimals)
 
     SetNumber(assetID, info.get(assetID) - amount + df, decimals)
 
@@ -666,7 +671,7 @@ function ExecuteDeallocation(){
     SetError("execute deallocation success")
 }
 
-function CanvertAssetToShares(num){
+function ConvertAssetToShares(num){
     return num
 }
 
@@ -710,7 +715,7 @@ function CalcHome() {
 
     // Calc swap.
     let swapRes = CalcSwap(info)
-    SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1", "spr", "srr"], ["spi", "srode"])
+    SetElements(swapRes, decimals, ["sifr", "sofr", "sro", "alras0", "alras1", "ralras", "spr", "srr"], ["spi", "srode"])
 
     SetError("success")
 }

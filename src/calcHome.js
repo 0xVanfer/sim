@@ -578,7 +578,7 @@ function ExecuteAllocation(){
 
     let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID) + af)
 
-    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(af), decimals)
+    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(af), decimals)
 
     SetNumberAdd(assetID, aa, decimals)
     SetNumberAdd(allocatedID, realAllo, decimals)
@@ -623,7 +623,7 @@ function ExecuteDeallocation(){
     let feeCollectedID = dt == 0 ? "fc0" : "fc1"
 
     SetNumberAdd(balanceID, earn, decimals)
-    SetNumberAdd(lpBalanceID, - CanvertAssetToShares(df), decimals)
+    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(df), decimals)
 
     SetNumber(assetID, info.get(assetID) - amount + df, decimals)
 
@@ -645,7 +645,7 @@ function ExecuteDeallocation(){
     SetError("execute deallocation success")
 }
 
-function CanvertAssetToShares(num){
+function ConvertAssetToShares(num){
     return num
 }
 
