@@ -46,7 +46,15 @@ function verifyTotalValue(origin) {
     let total = readTotalValue()
     // Require token balance not increase.
     document.getElementById("current_sum").innerText = total
-    if (total > origin) {
+
+    let decimals = ReadPositiveNumber("decimals");
+    let op0 = ReadPositiveNumber("op0");
+    let op1 = ReadPositiveNumber("op1");
+
+    let oplarger = op0 > op1 ? op0 : op1;
+    let tolerance = oplarger * Math.pow(10, -decimals)
+
+    if (total > origin + tolerance) {
         alert("Total value is too high!");
         return false;
     }
