@@ -299,11 +299,8 @@ function CalcSwap(info) {
     swapRes.set("alras0", alras0);
     swapRes.set("alras1", alras1);
 
-    if (alras0 < alb0 || alras1 < alb1 || !(realOut > 0)) {
-        document.getElementById('executeSwap').classList.add('grayed-out');
-    } else { 
-        document.getElementById('executeSwap').classList.remove('grayed-out');
-    }
+    let shouldGrey = alras0 < alb0 || alras1 < alb1 || !(realOut > 0)
+    GreyButton("executeSwap", shouldGrey)
 
     return swapRes;
 }
