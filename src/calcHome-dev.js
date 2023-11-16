@@ -749,7 +749,7 @@ function ResetData(){
 function ImportData(str = ""){
     if (str == "" || str == undefined || str.length == 0) str = document.getElementById("data2import").textContent;
 
-    let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``)
+    let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``).replaceAll(`;`,`;<br>`)
         .split(',')
         .map(pair => pair.split(':'))
         .reduce((map, [key, value]) => map.set(key, value), new Map());
