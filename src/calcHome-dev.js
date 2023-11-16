@@ -548,7 +548,12 @@ function ExecuteSwap(){
     let feeInProtocol = feeIn * info.get(protocolFeeRateInID)
     let feeOut = swapRes.get("sofr")
     let punish = swapRes.get("spr")
-    let feeOutProtocol = (feeOut + punish) * info.get(protocolFeeRateOutID)
+
+    // let feeAndPunish = feeOut + punish
+    // punish not considered as fee.
+    let feeAndPunish = feeOut
+
+    let feeOutProtocol = feeAndPunish * info.get(protocolFeeRateOutID)
 
     let realOut = swapRes.get("sro")
 
@@ -562,10 +567,10 @@ function ExecuteSwap(){
 
     // fee related
     SetNumberAdd(feeCollectedInID, feeIn - feeInProtocol, decimals)
-    SetNumberAdd(feeCollectedOutID, feeOut + punish - feeOutProtocol, decimals)
+    SetNumberAdd(feeCollectedOutID, feeAndPunish - feeOutProtocol, decimals)
 
     SetNumberAdd(feeHistoryInID, feeIn - feeInProtocol, decimals)
-    SetNumberAdd(feeHistoryOutID, feeOut + punish - feeOutProtocol, decimals)
+    SetNumberAdd(feeHistoryOutID, feeAndPunish - feeOutProtocol, decimals)
 
     SetNumberAdd(protocolFeeCollectedInID, feeInProtocol, decimals)
     SetNumberAdd(protocolFeeCollectedOutID, feeOutProtocol, decimals)

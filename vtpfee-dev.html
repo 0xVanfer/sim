@@ -166,19 +166,19 @@
                         <hr>
                         <li>swapInFee: Fee ratio during the swapIn process.</li>
                         <li>swapOutFee: Fee ratio during the swapOut process.</li>
-                        <li>protocolFeeRate: The ratio that the protocol will take from all the swap fees.(not including allocation and deallocation fee.)</li>
+                        <li>protocolFeeRate: The ratio that the protocol will take from all the swap fees.</li>
                         <li>alrLowerBound: The alr should never be lower than this param. A swap that will lead the alr to be lower than alrLowerBound will be reverted.</li>
                         <hr>
-                        When calculating deallocation, we need the following params.
-                        <li>user allocation: User's allocation in this vtpToken(one side of the vtp).</li>
-                        <li>user shares: The shares of this user within this vtpToken. Should never exceed all shares, and (user shares)/(all shares) ≈ (user allocation)/(liability).</li>
+                        <li>user allocation: User's allocation in this vtpToken.</li>
+                        <li>user shares: The shares of this user within this vtpToken. (user shares)/(all shares) ≈ (user allocation)/(liability).</li>
                         <li>all shares: All the shares within this vtpToken.</li>
                         <hr>
                         The calculated results, representing the token's status.
-                        <li>ralr0: Relative Asset-Liability Ratio of this token. = alr of this token / alr of another token.</li>
-                        <li>Po0: Price by Oracle. = oracle price of this token / oracle price of another token.</li>
+                        <li>ralr0: Relative Asset-Liability Ratio of this token. = alr0 / alr1.</li>
+                        <li>Po0: Price by Oracle. = op0 / op1.</li>
                         <li>Pa0: Price Adjusted by ralr0 from Po0.</li>
-                        <li>ras0: Reasonable amount shift. Calculated based on mainly rrs (and status of the vtp).</li>
+                        <li>ras0: Reasonable amount shift. Calculated based on rrs.</li>
+                        <li>Crazy: Max amount shift.</li>
                     </div>
                 </span>
             </div>
