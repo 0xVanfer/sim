@@ -9,6 +9,11 @@
     max-width: 1px;
 }
 
+#data2import{
+    height: 40px;
+    overflow-y: scroll;
+}
+
 #executionHistory {
     height: 400px;
     overflow-y: scroll;
