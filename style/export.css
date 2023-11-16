@@ -9,3 +9,8 @@
     max-width: 1px;
 }
 
+#executionHistory {
+    height: 400px;
+    overflow-y: scroll;
+    word-break: break-all;
+}

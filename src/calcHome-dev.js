@@ -506,10 +506,12 @@ function CalcDeallocate(info) {
 }
 
 function AddRecord(action, amount, tokenID){
-    let record = document.getElementById("executionHistory").innerHTML
-    if (record == 0) record = "";
-    record = record + "<br>" + action + "-" + amount + "-token" + tokenID + ";"
+    let element = document.getElementById('executionHistory')
+    let record = element.innerHTML
+    let newRecord = "<br>" + action + "-" + amount + "-token" + tokenID + ";"
+    record = record + newRecord
     SetString("executionHistory", record)
+    element.scrollTop = element.scrollHeight
 }
 
 function ExecuteSwap(){
