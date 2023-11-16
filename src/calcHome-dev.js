@@ -18,7 +18,7 @@ const STRING_ID_TO_RECORD = ["executionHistory"]
 
 const INIT_DATA_STR = 
 `
-{"mapName":"elements","decimals":6,"n":30,"rrs":0.12,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":4000,"ua1":4000,"us0":4000,"us1":4000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":4000,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":""}
+{"mapName":"elements","decimals":6,"n":30,"rrs":0.12,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":4000,"ua1":4000,"us0":4000,"us1":4000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":4000,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":"."}
 `
 
 // The params set by the user.
@@ -749,7 +749,7 @@ function ResetData(){
 function ImportData(str = ""){
     if (str == "" || str == undefined || str.length == 0) str = document.getElementById("data2import").textContent;
 
-    let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``).replaceAll(`;`,`;<br>`)
+    let data = str.replaceAll(`"`,``).replaceAll(`{`,``).replaceAll(`}`,``).replaceAll(` `,``).replaceAll(`;`,`;<br>`).replaceAll(`\\n`,``).replaceAll(`\\`,``)
         .split(',')
         .map(pair => pair.split(':'))
         .reduce((map, [key, value]) => map.set(key, value), new Map());
