@@ -613,7 +613,7 @@ function ExecuteAllocation(){
 
     SetNumberAdd(assetID, aa, decimals)
     SetNumberAdd(allocatedID, realAllo, decimals)
-    SetNumberAdd(feeCollectedID, af, decimals)
+    // SetNumberAdd(feeCollectedID, af, decimals)
 
     SetNumberAdd(userAllocationID, realAllo, decimals)
     SetNumberAdd(userShareID, userSharesAdd, decimals)
@@ -663,7 +663,8 @@ function ExecuteDeallocation(){
     // Allocated.
     SetNumber(allocatedID, info.get(allocatedID) - da, decimals)
     // Fee collected.
-    SetNumber(feeCollectedID, info.get(feeCollectedID) + df - earn, decimals)
+    // SetNumber(feeCollectedID, info.get(feeCollectedID) + df - earn, decimals)
+    SetNumber(feeCollectedID, info.get(feeCollectedID) - earn, decimals)
 
     SetNumber(userAllocationID, info.get(userAllocationID) - da, decimals)
     SetNumber(userShareID, info.get(userShareID) - deallocateRes.get("s2b"), decimals)
