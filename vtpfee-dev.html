@@ -32,7 +32,6 @@
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">
                         <li>n: The larger the value of 'n,' the more sensitive 'ralr' is to deviations of oracle price and market price.</li>
-                        <li>rrs: Reasonable Ralr Shift.</li>
                         <li>p: Threshold for heavy punishments (or rewards).</li>
                         <br>
                         <li>ralr: Relative Asset-Liability Ratio</li>
@@ -50,9 +49,9 @@
                         <td class="params" id="n" contenteditable>30</td>
                     </tr>
                     <tr>
-                        <td>rrs</td>
+                        <td>p</td>
                         <td>=</td>
-                        <td class="params" id="rrs" contenteditable>0.12</td>
+                        <td class="params" id="p" contenteditable>0.1</td>
                     </tr>
                     <td>=====</td>
                     <tr>
@@ -111,11 +110,11 @@
             </div>
             <br>
             <div>
-                <button class="data-button" onclick="RunRound()">Fuzz test</button>
+                <!-- <button class="data-button" onclick="RunRound()">Fuzz test</button>
                 <span class="tooltip">
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">Run several rounds of random operations, based on the current status.</div>
-                </span>
+                </span> -->
                 <div id="current_sum"></div>
             </div>
             <br>
@@ -177,8 +176,6 @@
                         <li>ralr0: Relative Asset-Liability Ratio of this token. = alr0 / alr1.</li>
                         <li>Po0: Price by Oracle. = op0 / op1.</li>
                         <li>Pa0: Price Adjusted by ralr0 from Po0.</li>
-                        <li>ras0: Reasonable amount shift. Calculated based on rrs.</li>
-                        <li>Crazy: Max amount shift.</li>
                     </div>
                 </span>
             </div>
@@ -290,14 +287,9 @@
                         <td id="pa0">1</td>
                     </tr>
                     <tr>
-                        <td>ras0</td>
+                        <td>mas0</td>
                         <td>=</td>
-                        <td id="ras0">0</td>
-                    </tr>
-                    <tr>
-                        <td>crazy0</td>
-                        <td>=</td>
-                        <td id="crazy0">0</td>
+                        <td id="mas0">0</td>
                     </tr>
                 </table>
             </form>
@@ -414,14 +406,9 @@
                         <td id="pa1">1</td>
                     </tr>
                     <tr>
-                        <td>ras1</td>
+                        <td>mas1</td>
                         <td>=</td>
-                        <td id="ras1">0</td>
-                    </tr>
-                    <tr>
-                        <td>crazy1</td>
-                        <td>=</td>
-                        <td id="crazy1">0</td>
+                        <td id="mas1">0</td>
                     </tr>
                 </table>
             </form>
@@ -557,7 +544,7 @@
             <hr></hr>
 
             <div>
-                <button class="execute-button" id="executeSwap" ondblclick="ExecuteSwap()">Execute This Swap</button>
+                <button class="execute-button" id="executeSwap" onclick="ExecuteSwap()">Execute This Swap</button>
                 <span class="tooltip">
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">
@@ -646,7 +633,7 @@
             <hr></hr>
 
             <div>
-                <button class="execute-button" id="executeAllocate" ondblclick="ExecuteAllocation()">Execute This Allocation</button>
+                <button class="execute-button" id="executeAllocate" onclick="ExecuteAllocation()">Execute This Allocation</button>
                 <span class="tooltip">
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">
@@ -750,7 +737,7 @@
             <hr></hr>
 
             <div>
-                <button class="execute-button" id="executeDeallocate" ondblclick="ExecuteDeallocation()">Execute This Deallocation</button>
+                <button class="execute-button" id="executeDeallocate" onclick="ExecuteDeallocation()">Execute This Deallocation</button>
                 <span class="tooltip">
                     <div class="question-mark">ℹ️</div>
                     <div class="tooltip-text">

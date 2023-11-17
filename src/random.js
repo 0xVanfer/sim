@@ -99,14 +99,17 @@ function randomDeAllocate(token) {
 
 function randomSwap(token) {
     // Check Balance
-    let bal = parseFloat(document.getElementById("uwb" + token).innerText);
+    let bal0 = ReadPositiveNumber("uwb" + token);
+    let maxSwap = bal0; 
     // Check Pool Asset
-    let asset = parseFloat(document.getElementById("a" + getOppositeToken(token)).innerText);
-    let allocated = parseFloat(document.getElementById("aed" + getOppositeToken(token)).innerText);
+    let po1 = ReadPositiveNumber("po" + getOppositeToken(token));
+    let alb1 = ReadPositiveNumber("alb" + getOppositeToken(token));
+    let liability1 = ReadPositiveNumber("l" + getOppositeToken(token));
+    let alr1 = ReadPositiveNumber("alr" + getOppositeToken(token));
     // Check Max slippage
-    let maxDiff = allocated * (1 - parseFloat(document.getElementById("alb" + getOppositeToken(token)).innerText));
-    let maxSwap = bal < asset ? bal : asset;
-    maxSwap = maxSwap < maxDiff ? maxSwap : maxDiff;
+    let maxDiff = liability1 * (alr1 - alb1) * po1;
+    
+    maxSwap = maxDiff > maxSwap ? maxSwap : maxDiff;
     // Do random swap
     setSwapAndDo(randFloat(maxSwap), token);
 }
@@ -134,6 +137,10 @@ function RunRound() {
     for (let round = 0; round < times; round ++){
         // Reset first
         ImportData(startingStatus)
+        SetNumber("sif0", 0);
+        SetNumber("sif1", 0);
+        SetNumber("sof0", 0);
+        SetNumber("sof1", 0);
         // The original wallet value of user.
         let origin = readTotalValue()
         // Each Round takes 10 ops
