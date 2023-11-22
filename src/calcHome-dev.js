@@ -293,7 +293,7 @@ function CalcSwap(info) {
 
     // alr after swap
     let alrasIn = (a0 + sa) / (l0 + feeIn)
-    let alrasOut = (a1 - realOut) / (l1 + feeOut + punish)
+    let alrasOut = (a1 - realOut) / (l1 + feeOut)
 
     let alras0 = st == 0 ? alrasIn : alrasOut;
     let alras1 = st == 0 ? alrasOut : alrasIn;
