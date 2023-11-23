@@ -6,6 +6,7 @@ const NUMBER_ID_TO_RECORD = [
     "op0", "op1",// oracle prices
     "ua0", "ua1", "us0", "us1", "ts0", "ts1", // user info and shares
     "sif0", "sif1", "sof0", "sof1", "fc0", "fc1", "pfc0", "pfc1", "hfc0", "hfc1", "pfr0", "pfr1", // fee realted
+    "uncharged0", "uncharged1", // uncharged allocate fee
     "alb0", "alb1", // alr lower bound
     "sa", "aa", "da", // swap, (de)allocate amount
     "discount", // swap fee discount
@@ -18,8 +19,7 @@ const STRING_ID_TO_RECORD = ["executionHistory"]
 
 const INIT_DATA_STR = 
 `
-{"mapName":"elements","decimals":6,"n":30,"p":0.1,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":4000,"ua1":4000,"us0":4000,"us1":4000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":4000,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":"."}
-`
+{"mapName":"elements","decimals":6,"n":30,"p":0.1,"uwb0":50000,"uwb1":50000,"uwlpb0":10000,"uwlpb1":10000,"a0":10000,"a1":10000,"aed0":10000,"aed1":10000,"op0":1,"op1":1,"ua0":4000,"ua1":4000,"us0":4000,"us1":4000,"ts0":10000,"ts1":10000,"sif0":0,"sif1":0,"sof0":0.0001,"sof1":0.0001,"fc0":0,"fc1":0,"pfc0":0,"pfc1":0,"hfc0":0,"hfc1":0,"pfr0":0.1,"pfr1":0.1,"uncharged0":0,"uncharged1":0,"alb0":0.88,"alb1":0.88,"sa":10,"aa":0,"da":0,"discount":0,"srofr":0,"affr":0,"dffr":0,"at":0,"dt":0,"st":0,"executionHistory":"."}`
 
 // The params set by the user.
 function ReadBaseElements(){
@@ -239,17 +239,9 @@ function CalcSwap(info) {
     let newAlrOut = (a1 - estiOut) / (l1 + feeOut)
     let newRalr = newAlrIn / newAlrOut
 
-    let reward = 0;
-    let punish = 0;
-
-    if (newRalr > m){
-        // 1-1/(1+ralr/m-m/ralr)
-        punish = [1-1/(1+newRalr/m-m/newRalr)] * estiOut
-        if (punish > estiOut) punish = estiOut;
-    }else if (newRalr < 1 / m){
-        // 1-1/(1+1/m/ralr-m*ralr)
-        reward = [1-1/(1+1/m/newRalr-m*newRalr)] * estiOut
-    }
+    let [ratePunish, rateReward] = calcSwapPunishmentRate(m, newRalr)
+    let punish = ratePunish*estiOut;
+    let reward = rateReward*estiOut;
 
     let realOut = estiOut - punish + reward
     // price impact
@@ -287,6 +279,20 @@ function CalcSwap(info) {
     GreyButton("executeSwap", shouldGrey)
 
     return swapRes;
+}
+
+function calcSwapPunishmentRate(m, ralr){
+    if (ralr > m){
+        // 1-1/(1+ralr/m-m/ralr)
+        punish = [1-1/(1+ralr/m-m/ralr)] 
+        if (punish > 1) punish = 1;
+        return [punish, 0]
+    }else if (ralr < 1 / m){
+        // 1-1/(1+1/m/ralr-m*ralr)
+        reward = [1-1/(1+1/m/ralr-m*ralr)] 
+        return [0, reward]
+    }
+    return [0, 0]
 }
 
 function CalcAllocate(info) {
@@ -395,6 +401,8 @@ function CalcDeallocate(info) {
 
     // n, p
     let n = info.get("n");
+    let p = info.get("p");
+    let m = 1 + p
 
     // asset, liability, alr
     let a0 = dt == 0 ? info.get("a0") : info.get("a1");
@@ -409,6 +417,7 @@ function CalcDeallocate(info) {
 
     // pa
     let pa0 = dt == 0 ? info.get("pa0") : info.get("pa1");
+    let pa1 = dt == 0 ? info.get("pa1") : info.get("pa0");
 
     // alr lower bound
     let alb0 = dt == 0 ? info.get("alb0") : info.get("alb1");
@@ -480,6 +489,29 @@ function CalcDeallocate(info) {
     
     let fee = ppf + npf;
     if (fee > amount) fee = amount;
+
+    // let ralrPrev = (a0 / l0) / (a1 / l1)
+    // let newRalr = ((a0 - amount + fee) / (l0 - amount)) / (a1 / l1)
+
+    // let roomPrev 
+    // let roomNow
+    // if (newRalr > m && newRalr > ralrPrev){
+    //     let [ratePunishPrev, rateRewardPrev] = calcSwapPunishmentRate(m, 1/ralrPrev)
+    //     let [ratePunishNow, rateRewardNow] = calcSwapPunishmentRate(m, 1/newRalr)
+
+    //     let newPa0 = pa0 * Math.pow(newRalr/ralrPrev,-1/n)
+    //     let newPa1 = 1/newPa0
+    //     roomPrev = (1/m - 1/ralrPrev) * l1 * rateRewardPrev * pa1
+    //     roomNow = (1/m - 1/newRalr) * l1 * rateRewardNow * newPa1
+    // }else if (newRalr < 1/m && newRalr < ralrPrev){
+    //     let [ratePunishPrev, rateRewardPrev] = calcSwapPunishmentRate(m, ralrPrev)
+    //     let [ratePunishNow, rateRewardNow] = calcSwapPunishmentRate(m, newRalr)
+
+    //     roomPrev = (1/m - ralrPrev) * l0 * rateRewardPrev 
+    //     roomNow = (1/m - newRalr) * (l0 - amount) * rateRewardNow
+    // }
+    // let ralrFee = roomNow > roomPrev ? roomNow - roomPrev : 0;
+    // fee = fee + ralrFee > amount ? amount : fee + ralrFee;
    
     deallocateRes.set("df", fee);
     deallocateRes.set("dfr", fee / amount);
@@ -590,23 +622,20 @@ function ExecuteAllocation(){
     // real allocate
     let realAllo = aa - af
 
-    let lpBalanceID = at == 0 ? "uwlpb0" : "uwlpb1"
-
     let assetID = at == 0 ? "a0" : "a1"
     let allocatedID = at == 0 ? "aed0" : "aed1"
     let liabilityID = at == 0 ? "l0" : "l1"
     let userAllocationID = at == 0 ? "ua0" : "ua1"
     let userShareID = at == 0 ? "us0" : "us1"
     let totalShareID = at == 0 ? "ts0" : "ts1"
-    let feeCollectedID = at == 0 ? "fc0" : "fc1"
+    let unchargedFeeID = at == 0 ? "uncharged0" : "uncharged1"
 
-    let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID) + af)
+    let userSharesAdd = info.get(liabilityID) == 0 ? realAllo : realAllo * info.get(totalShareID) / (info.get(liabilityID))
 
-    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(af), decimals)
+    SetNumberAdd(unchargedFeeID, ConvertAssetToShares(af), decimals)
 
     SetNumberAdd(assetID, aa, decimals)
     SetNumberAdd(allocatedID, realAllo, decimals)
-    // SetNumberAdd(feeCollectedID, af, decimals)
 
     SetNumberAdd(userAllocationID, realAllo, decimals)
     SetNumberAdd(userShareID, userSharesAdd, decimals)
@@ -645,9 +674,15 @@ function ExecuteDeallocation(){
     let userShareID = dt == 0 ? "us0" : "us1"
     let totalShareID = dt == 0 ? "ts0" : "ts1"
     let feeCollectedID = dt == 0 ? "fc0" : "fc1"
+    let unchargedFeeID = dt == 0 ? "uncharged0" : "uncharged1"
+
+    let unchargedFee = info.get(unchargedFeeID) 
+    
+    let unchargedToCharge = unchargedFee * da / info.get(userAllocationID)
 
     SetNumberAdd(balanceID, earn, decimals)
-    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(df), decimals)
+    SetNumberAdd(lpBalanceID, - ConvertAssetToShares(df + unchargedToCharge), decimals)
+    SetNumberAdd(unchargedFeeID, -unchargedToCharge, decimals)
 
     SetNumber(assetID, info.get(assetID) - amount + df, decimals)
 
